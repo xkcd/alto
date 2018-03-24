@@ -41,7 +41,7 @@ subMenu name entries = do
   cid <- genMenuID name
   let mn = Menu cid (execWriter entries)
   -- Make sure this ID isn't already in use.
-  omns <- menus <%= (Map.insert cid mn)
+  omns <- menus <<%= (Map.insert cid mn)
   when (cid `Map.member` omns) $
     error ("The name "<>(T.unpack name)<>" was already in used!")
   return $ mn
