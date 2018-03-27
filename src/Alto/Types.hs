@@ -17,7 +17,9 @@ import           GHC.Generics
 
 type MenuID = Text
 
-newtype Tag = Tag Text
+newtype Tag =
+  Tag Text
+  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
 data ClientState =
   ClientState
@@ -46,22 +48,24 @@ data EntryDisplay =
    Always
  | WhenSet Tag
  | WhenNotSet Tag
+ | InactiveWhen EntryDisplay
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
-data Reaction =
-   Inactive
- | SubMenu MenuID
- | ChangeTags { _setTags :: Set Tag, _unsetTags :: Set Tag }
+data EntryType =
+   Action { _setTags :: Set Tag, _unsetTags :: Set Tag }
+   -- ^ When the entry is clicked it does the above
+ | SubMenu { _subMenu :: MenuID, _setTags :: Set Tag, _unsetTags :: Set Tag }
+   -- ^ When the entry is selected, the submenu is displayed
  -- | CallBack SomeHMACedThing
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
-makeLenses ''Reaction
+makeLenses ''EntryType
 
 data MenuEntry =
   MEntry
   { _icon :: Maybe Text
   , _label :: Text
-  , _reaction :: Reaction
+  , _reaction :: EntryType
   , _display :: EntryDisplay
   }
   deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
@@ -69,7 +73,7 @@ data MenuEntry =
 makeLenses ''MenuEntry
 
 instance IsString MenuEntry where
-  fromString l = MEntry Nothing (T.pack l) Inactive Always
+  fromString l = MEntry Nothing (T.pack l) (Action mempty mempty) Always 
 
 data Menu =
   Menu
@@ -109,5 +113,3 @@ data CompState =
   deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''CompState
-
-type MenuM a = StateT CompState IO a

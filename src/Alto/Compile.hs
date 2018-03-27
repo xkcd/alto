@@ -1,4 +1,5 @@
-{-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings, ScopedTypeVariables, FlexibleContexts
+ #-}
 module Alto.Compile where
 
 import           Alto.Types
@@ -10,15 +11,20 @@ import           Crypto.Scrypt (ScryptParams, scryptParams)
 import qualified Crypto.Scrypt as Scrypt
 import qualified Data.Aeson as JS
 import qualified Data.ByteString as BS
-import qualified Data.ByteString.Base64 as B64
+import qualified Data.ByteString.Base64.URL as B64
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as Map
+import qualified Data.Set as Set
+import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 
 saltDerivingParams :: ScryptParams
 saltDerivingParams = Scrypt.defaultParams
+
+type MenuM a = StateT CompState IO a
+type EntryM a = WriterT [MenuEntry] (StateT CompState IO) a
 
 compileRoot :: Text -> MenuM Menu -> IO MenuSystem
 compileRoot name desc = do
@@ -31,26 +37,22 @@ compileRoot name desc = do
 -- | Generate a (hopefully) unique ID based off the name, pseudo-salted from the root name.
 --   The root derived pseudo salt is expensively generated to make guessing attacks
 --   fairly unreasonable. Truly though this is just to keep the honest honest.
-genTagID :: Text -> MenuM Text
+genTagID :: MonadState CompState m => Text -> m Tag
 genTagID nm = do
   ss <- use salt
   -- If our parts encode the same, we are the same.
-  return . TE.decodeUtf8 . B64.encode . SHA256.hashlazy .
+  return . Tag . T.init . TE.decodeUtf8 . B64.encode . SHA256.hashlazy .
     BSL.fromChunks $ [TE.encodeUtf8 nm, ss]
-
 
 genMenuID :: [MenuEntry] -> MenuM MenuID
 genMenuID me = do
   ss <- use salt
-  return . TE.decodeUtf8 . B64.encode . SHA256.hashlazy . BSL.fromChunks .
+  return . T.init . TE.decodeUtf8 . B64.encode . SHA256.hashlazy . BSL.fromChunks .
     (`mappend` [ss]) . map (BSL.toStrict . JS.encode) $ me
 
-type EntryM a = WriterT [MenuEntry] MenuM a
-
--- Checks that the 
 menu :: EntryM () -> MenuM Menu
 menu entries = do
-  let es = execWriter entries
+  es <- execWriterT entries
   cid <- genMenuID es
   let mn = Menu cid es
   -- Make sure this ID isn't already in use.
@@ -59,33 +61,41 @@ menu entries = do
     error ("The menu "<>(show es)<>" was already in used!")
   return $ mn
 
-uniqueTag :: Text -> MenuM Tag
-uniqueTag t = 
+uniqueTag :: MonadState CompState m => Text -> m Tag
+uniqueTag t = do
+  tid <- genTagID t
+  existed <- use $ tags.contains tid
+  when existed $ error "Tag already existed!"
+  return tid
 
--- -- | Adds a basic menu entry to the currently building menu.
---entry :: Text -> Reaction -> Writer [MenuEntry] ()
---entry n r = tell . pure $ MEntry Nothing n r
+-- | Add an entry to the menu
+ent :: MenuEntry -> EntryM ()
+ent = tell . pure
+
+-- | Display the MenuEntry when a tag is set
+infixl 5 &+
+(&+) :: MenuEntry -> Tag -> MenuEntry
+(&+) e t = e & display .~ WhenSet t
+
+-- | Display the MenuEntry when a tag is unset
+infixl 5 &-
+(&-) :: MenuEntry -> Tag -> MenuEntry
+(&-) e t = e & display .~ WhenNotSet t
+
+-- Make a MenuEntry link to a submenu
+-- (|-$) :: MenuEntry -> MenuM Menu -> MenuM MenuEntry
+
+infixl 5 |->
+(|->) :: MenuEntry -> Menu -> MenuEntry
+(|->) e m = e & reaction .~ SubMenu (m ^. mid) (e ^. reaction.setTags) (e ^. reaction.unsetTags)
 
 -- | Make a MenuEntry set a tag.
-(|+) :: MenuEntry -> Tag -> MenuM MenuEntry
+infixl 5 |-+
+(|-+) :: MenuEntry -> Tag -> MenuEntry
+(|-+) e t = e & reaction.setTags <>~ (Set.singleton t)
 
 -- | Make a MenuEntry unset a tag.
-(|-)_ :: MenuEntry -> Tag -> MenuM MenuEntry
+infixl 5 |--
+(|--) :: MenuEntry -> Tag -> MenuEntry
+(|--) e t = e & reaction.unsetTags <>~ (Set.singleton t)
 
--- | Attach a display condition to a MenuEntry
-(&-) :: MenuEntry -> Tag -> MenuM MenuEntry
-
--- | Make a MenuEntry link to a submenu
-(|>) :: MenuEntry -> Menu -> MenuM MenuEntry
-(|>) :: MenuEntry -> MenuM Menu -> MenuM MenuEntry
-
-class MakeEntry t where
-  ent :: t -> Writer [MenuEntry] ()
-
-instance MakeEntry Text where
-  ent l = tell . pure $ MEntry Nothing l Inactive Always
-
-instance MakeEntry (Text -> 
-
-linkMenu :: Menu -> Reaction
-linkMenu = SubMenu . _mid
