@@ -9,12 +9,23 @@ import qualified Data.Aeson as JSON
 import           Data.Aeson (FromJSON, ToJSON)
 import           Data.ByteString (ByteString)
 import           Data.Map (Map)
+import           Data.Set (Set)
+import           Data.String
 import           Data.Text (Text)
+import qualified Data.Text as T
 import           GHC.Generics
 
 type MenuID = Text
 
-type ClientState = ()
+newtype Tag = Tag Text
+
+data ClientState =
+  ClientState
+  { _clientTags :: Set Tag
+  }
+  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+
+makeLenses ''ClientState
 
 {-
 data Event =
@@ -26,15 +37,21 @@ data Event =
 data GlobalMenuState =
   GMS
   { _clientState :: ClientState
-  , _privateState :: ()
   }
   deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
 makeLenses ''GlobalMenuState
 
+data EntryDisplay =
+   Always
+ | WhenSet Tag
+ | WhenNotSet Tag
+ deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+
 data Reaction =
-   SubMenu MenuID
- | Inactive
+   Inactive
+ | SubMenu MenuID
+ | ChangeTags { _setTags :: Set Tag, _unsetTags :: Set Tag }
  -- | CallBack SomeHMACedThing
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
@@ -45,10 +62,14 @@ data MenuEntry =
   { _icon :: Maybe Text
   , _label :: Text
   , _reaction :: Reaction
+  , _display :: EntryDisplay
   }
   deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
 makeLenses ''MenuEntry
+
+instance IsString MenuEntry where
+  fromString l = MEntry Nothing (T.pack l) Inactive Always
 
 data Menu =
   Menu
@@ -83,6 +104,7 @@ data CompState =
   { _salt :: ByteString
     -- ^ A pseudo-salt derived expensively from the overall name. 
   , _menus :: Map MenuID Menu
+  , _tags :: Set Tag
   }
   deriving (Read, Show, Eq, Ord, Generic)
 
