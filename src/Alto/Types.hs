@@ -5,9 +5,11 @@ module Alto.Types where
 
 import           Control.Lens.TH
 import           Control.Monad.State (StateT)
-import qualified Data.Aeson as JSON
+import qualified Data.Aeson as JS
+import qualified Data.Aeson.TH as JS
 import           Data.Aeson (FromJSON, ToJSON)
 import           Data.ByteString (ByteString)
+import           Data.Char (toLower)
 import           Data.Map (Map)
 import           Data.Set (Set)
 import           Data.String
@@ -25,9 +27,10 @@ data ClientState =
   ClientState
   { _clientTags :: Set Tag
   }
-  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''ClientState
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 7, JS.constructorTagModifier = map toLower} ''ClientState
 
 {-
 data Event =
@@ -57,9 +60,10 @@ data EntryType =
  | SubMenu { _subMenu :: MenuID, _setTags :: Set Tag, _unsetTags :: Set Tag }
    -- ^ When the entry is selected, the submenu is displayed
  -- | CallBack SomeHMACedThing
- deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+ deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''EntryType
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1, JS.sumEncoding = JS.UntaggedValue} ''EntryType
 
 data MenuEntry =
   MEntry
@@ -68,9 +72,10 @@ data MenuEntry =
   , _reaction :: EntryType
   , _display :: EntryDisplay
   }
-  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''MenuEntry
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''MenuEntry
 
 instance IsString MenuEntry where
   fromString l = MEntry Nothing (T.pack l) (Action mempty mempty) Always 
@@ -80,18 +85,20 @@ data Menu =
   { _mid :: MenuID
   , _entries :: [MenuEntry]
   }
-  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''Menu
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = dropWhile (=='m') . drop 1} ''Menu
 
 data Root =
   MenuRoot
   { _rootState :: ClientState
   , _rootMenu :: Menu
   }
-  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''Root
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 5} ''Root
 
 data MenuSystem =
   MenuSystem
