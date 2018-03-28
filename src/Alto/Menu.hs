@@ -1,20 +1,27 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
-module Alto.Types where
+module Alto.Menu where
 
+import           Control.Lens
 import           Control.Lens.TH
 import           Control.Monad.State (StateT)
 import qualified Data.Aeson as JS
 import qualified Data.Aeson.TH as JS
 import           Data.Aeson (FromJSON, ToJSON)
 import           Data.ByteString (ByteString)
+import qualified Data.ByteString.Lazy as BSL
 import           Data.Char (toLower)
 import           Data.Map (Map)
+import qualified Data.Map as Map
 import           Data.Set (Set)
 import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
+import           Data.Text.Lens
+import           System.Directory (listDirectory)
+import           System.FilePath
 import           GHC.Generics
 
 type MenuID = Text
@@ -31,21 +38,6 @@ data ClientState =
 
 makeLenses ''ClientState
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 7, JS.constructorTagModifier = map toLower} ''ClientState
-
-{-
-data Event =
-   ReloadRoot
- | ChangeMenu
- | ChangeClientState
--}
-
-data GlobalMenuState =
-  GMS
-  { _clientState :: ClientState
-  }
-  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
-
-makeLenses ''GlobalMenuState
 
 data EntryDisplay =
    Always
@@ -103,7 +95,6 @@ JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 5} ''Root
 data MenuSystem =
   MenuSystem
   { _menuMap :: Map MenuID Menu
-  , _globalState :: GlobalMenuState
   , _topMenu :: Menu
   }
   deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
@@ -120,3 +111,28 @@ data CompState =
   deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''CompState
+
+-- | Load a menu from a file
+loadMenu :: FilePath -> IO Menu
+loadMenu fp = do
+  either error return =<< JS.eitherDecode' <$> BSL.readFile fp
+
+-- | Loads a MenuSystem directory. The format is:
+--   FP:
+--     - root <- file containing root menu's ID
+--     - menus/ <- directory of one file per menu
+loadMenus :: FilePath -> IO MenuSystem
+loadMenus fp = do
+  rmID <- TIO.readFile $ fp </> "root"
+  mns <- (fmap ((fp</>"menus")</>) <$> listDirectory (fp </> "menus")) >>=
+         (fmap (Map.fromList . map (\a -> (a ^.mid, a))) . mapM loadMenu)
+  maybe (error "Couldn't find root menu in MenuSystem!") return . fmap (MenuSystem mns) $
+    mns  ^.at rmID
+
+-- | Save a MenuSystem so it can be reloaded later for serving or use as a
+--   subcomponent of another MenuSystem.
+saveMenus :: FilePath -> MenuSystem -> IO ()
+saveMenus fp ms = do
+  TIO.writeFile (fp</>"root") (ms^.topMenu.mid)
+  ifor_ (ms^.menuMap) $ \i m ->
+    JS.encodeFile ((fp</>"menus")</>(T.unpack i)) m

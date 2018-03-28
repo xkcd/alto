@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeOperators #-}
 module Alto.Web where
 
-import           Alto.Types
+import           Alto.Menu
 import           Control.Lens
 import           Control.Lens.TH
 import qualified Data.ByteString as BS
@@ -15,6 +15,7 @@ import           Servant
 data AltoConfig =
   AltoConfig
   { _mSys :: MenuSystem
+  , _initState :: ClientState
   }
   deriving (Read, Show, Eq, Ord)
 
@@ -30,7 +31,7 @@ api :: Proxy API
 api = Proxy
 
 serveRoot :: AltoConfig -> Handler Root
-serveRoot cfg = return $ MenuRoot (cfg ^. mSys.globalState.clientState) (cfg ^. mSys.topMenu)
+serveRoot cfg = return $ MenuRoot (cfg^.initState) (cfg^.mSys.topMenu)
 
 serveMenu :: AltoConfig -> Text -> Handler Menu
 serveMenu cfg i =

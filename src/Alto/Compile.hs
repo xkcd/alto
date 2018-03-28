@@ -2,7 +2,7 @@
  #-}
 module Alto.Compile where
 
-import           Alto.Types
+import           Alto.Menu
 import           Control.Lens
 import           Control.Monad.Writer
 import           Control.Monad.State
@@ -19,6 +19,7 @@ import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
+import           System.RandomString
 
 saltDerivingParams :: ScryptParams
 saltDerivingParams = Scrypt.defaultParams
@@ -26,13 +27,16 @@ saltDerivingParams = Scrypt.defaultParams
 type MenuM a = StateT CompState IO a
 type EntryM a = WriterT [MenuEntry] (StateT CompState IO) a
 
+
+-- | Compiles a MenuSystem given a name we produce a salt from.
+--   Any menu systems sharing tags must agree on the project name.
 compileRoot :: Text -> MenuM Menu -> IO MenuSystem
 compileRoot name desc = do
   let compSalt = B64.encode . Scrypt.getEncryptedPass . Scrypt.encryptPass
                  saltDerivingParams (Scrypt.Salt $ TE.encodeUtf8 "Jektulv!OCod3gob6Glaj@") .
                  Scrypt.Pass . TE.encodeUtf8 $ name
   (rm, (CSt _ mnmp _)) <- desc `runStateT` (CSt compSalt mempty mempty)
-  return $ MenuSystem mnmp (GMS (ClientState mempty)) rm
+  return $ MenuSystem mnmp rm
 
 -- | Generate a (hopefully) unique ID based off the name, pseudo-salted from the root name.
 --   The root derived pseudo salt is expensively generated to make guessing attacks
@@ -44,16 +48,21 @@ genTagID nm = do
   return . Tag . T.init . TE.decodeUtf8 . B64.encode . SHA256.hashlazy .
     BSL.fromChunks $ [TE.encodeUtf8 nm, ss]
 
-genMenuID :: [MenuEntry] -> MenuM MenuID
-genMenuID me = do
-  ss <- use salt
-  return . T.init . TE.decodeUtf8 . B64.encode . SHA256.hashlazy . BSL.fromChunks .
-    (`mappend` [ss]) . map (BSL.toStrict . JS.encode) $ me
+genMenuID :: MenuM MenuID
+genMenuID = lift $ randomString (StringOpts Base58 (256 `div` 8))
+
+-- | Import a menu system for use in this menu system.
+--   Returns the root of said menu system.
+importMenus :: FilePath -> MenuM Menu
+importMenus fp = do
+  ms <- lift $ loadMenus fp
+  menus <>= (ms ^. menuMap)
+  return (ms ^. topMenu)
 
 menu :: EntryM () -> MenuM Menu
 menu entries = do
   es <- execWriterT entries
-  cid <- genMenuID es
+  cid <- genMenuID
   let mn = Menu cid es
   -- Make sure this ID isn't already in use.
   omns <- menus <<%= (Map.insert cid mn)

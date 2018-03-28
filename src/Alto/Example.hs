@@ -2,7 +2,7 @@
 module Alto.Example where
 
 import Alto.Compile
-import Alto.Types
+import Alto.Menu
 
 exampleMenu :: IO MenuSystem
 exampleMenu = compileRoot "Example Menu" $ do
