@@ -45,7 +45,7 @@ genTagID :: MonadState CompState m => Text -> m Tag
 genTagID nm = do
   ss <- use salt
   -- If our parts encode the same, we are the same.
-  return . Tag . T.init . TE.decodeUtf8 . B64.encode . SHA256.hashlazy .
+  return . T.init . TE.decodeUtf8 . B64.encode . SHA256.hashlazy .
     BSL.fromChunks $ [TE.encodeUtf8 nm, ss]
 
 genMenuID :: MenuM MenuID
@@ -96,12 +96,17 @@ infixl 5 &-
 
 infixl 5 |->
 (|->) :: MenuEntry -> Menu -> MenuEntry
-(|->) e m = e & reaction .~ SubMenu (m ^. mid) (e ^. reaction.setTags) (e ^. reaction.unsetTags)
+(|->) e m = e & reaction .~ SubMenu (m ^. mid) Nothing (e ^. reaction.setTags) (e ^. reaction.unsetTags)
 
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+
 (|-+) :: MenuEntry -> Tag -> MenuEntry
-(|-+) e t = e & reaction.setTags <>~ (Set.singleton t)
+(|-+) e t = e & reaction.setTags <>~ (Map.singleton t "")
+
+-- | Make a MenuEntry set a tag.
+infixl 5 |-+=
+(|-+=) :: MenuEntry -> Tag -> Text -> MenuEntry
+(|-+=) e t v = e & reaction.setTags <>~ (Map.singleton t v)
 
 -- | Make a MenuEntry unset a tag.
 infixl 5 |--

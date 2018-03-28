@@ -26,13 +26,11 @@ import           GHC.Generics
 
 type MenuID = Text
 
-newtype Tag =
-  Tag Text
-  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+type Tag = Text
 
 data ClientState =
   ClientState
-  { _clientTags :: Set Tag
+  { _clientTags :: Map Tag Text
   }
   deriving (Read, Show, Eq, Ord, Generic)
 
@@ -47,9 +45,9 @@ data EntryDisplay =
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
 data EntryType =
-   Action { _setTags :: Set Tag, _unsetTags :: Set Tag }
+   Action { _setTags :: Map Tag Text, _unsetTags :: Set Tag }
    -- ^ When the entry is clicked it does the above
- | SubMenu { _subMenu :: MenuID, _setTags :: Set Tag, _unsetTags :: Set Tag }
+ | SubMenu { _subMenu :: MenuID, _subIdPostfix :: Maybe Tag, _setTags :: Map Tag Text, _unsetTags :: Set Tag }
    -- ^ When the entry is selected, the submenu is displayed
  -- | CallBack SomeHMACedThing
  deriving (Read, Show, Eq, Ord, Generic)
