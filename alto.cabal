@@ -24,6 +24,7 @@ library
   exposed-modules:
         Alto.Menu
       , Alto.Compile
+      , Alto.Compile.Navigations
       , Alto.Example
       , Alto.Web
   build-depends:
@@ -42,6 +43,7 @@ library
       , filepath
       , directory
       , random-string
+      , list-tries
 
 executable alto
   -- other-modules:

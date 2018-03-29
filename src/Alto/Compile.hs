@@ -27,7 +27,6 @@ saltDerivingParams = Scrypt.defaultParams
 type MenuM a = StateT CompState IO a
 type EntryM a = WriterT [MenuEntry] (StateT CompState IO) a
 
-
 -- | Compiles a MenuSystem given a name we produce a salt from.
 --   Any menu systems sharing tags must agree on the project name.
 compileRoot :: Text -> MenuM Menu -> IO MenuSystem
@@ -81,6 +80,9 @@ uniqueTag t = do
 ent :: MenuEntry -> EntryM ()
 ent = tell . pure
 
+mnAction :: Menu -> EntryType
+mnAction m = SubMenu (m^.mid) Nothing mempty mempty
+
 -- | Display the MenuEntry when a tag is set
 infixl 5 &+
 (&+) :: MenuEntry -> Tag -> MenuEntry
@@ -97,6 +99,10 @@ infixl 5 &-
 infixl 5 |->
 (|->) :: MenuEntry -> Menu -> MenuEntry
 (|->) e m = e & reaction .~ SubMenu (m ^. mid) Nothing (e ^. reaction.setTags) (e ^. reaction.unsetTags)
+
+infixl 5 |-//
+(|-//) :: MenuEntry -> Text -> MenuEntry
+(|-//) e url = e & reaction .~ Navigate url (e ^. reaction.setTags) (e ^. reaction.unsetTags)
 
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+

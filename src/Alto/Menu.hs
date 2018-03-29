@@ -49,6 +49,7 @@ data EntryType =
    -- ^ When the entry is clicked it does the above
  | SubMenu { _subMenu :: MenuID, _subIdPostfix :: Maybe Tag, _setTags :: Map Tag Text, _unsetTags :: Set Tag }
    -- ^ When the entry is selected, the submenu is displayed
+ | Navigate { _loadUrl :: Text, _setTags :: Map Tag Text, _unsetTags :: Set Tag }
  -- | CallBack SomeHMACedThing
  deriving (Read, Show, Eq, Ord, Generic)
 
@@ -59,8 +60,8 @@ data MenuEntry =
   MEntry
   { _icon :: Maybe Text
   , _label :: Text
-  , _reaction :: EntryType
   , _display :: EntryDisplay
+  , _reaction :: EntryType
   }
   deriving (Read, Show, Eq, Ord, Generic)
 
@@ -68,7 +69,7 @@ makeLenses ''MenuEntry
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''MenuEntry
 
 instance IsString MenuEntry where
-  fromString l = MEntry Nothing (T.pack l) (Action mempty mempty) Always 
+  fromString l = MEntry Nothing (T.pack l) Always (Action mempty mempty)
 
 data Menu =
   Menu
