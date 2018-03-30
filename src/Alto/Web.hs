@@ -5,11 +5,7 @@ module Alto.Web where
 
 import           Alto.Menu
 import           Control.Lens
-import           Control.Lens.TH
-import qualified Data.ByteString as BS
-import           Data.ByteString (ByteString)
 import           Data.Text (Text)
---import           Network.Wai
 import           Servant
 
 data AltoConfig =

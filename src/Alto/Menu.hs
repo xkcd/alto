@@ -4,8 +4,6 @@
 module Alto.Menu where
 
 import           Control.Lens
-import           Control.Lens.TH
-import           Control.Monad.State (StateT)
 import qualified Data.Aeson as JS
 import qualified Data.Aeson.TH as JS
 import           Data.Aeson (FromJSON, ToJSON)
@@ -19,7 +17,6 @@ import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
-import           Data.Text.Lens
 import           System.Directory (listDirectory, createDirectory)
 import           System.FilePath
 import           GHC.Generics

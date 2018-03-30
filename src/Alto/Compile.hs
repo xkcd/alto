@@ -7,15 +7,12 @@ import           Control.Lens
 import           Control.Monad.Writer
 import           Control.Monad.State
 import qualified Crypto.Hash.SHA256 as SHA256
-import           Crypto.Scrypt (ScryptParams, scryptParams)
+import           Crypto.Scrypt (ScryptParams)
 import qualified Crypto.Scrypt as Scrypt
-import qualified Data.Aeson as JS
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base64.URL as B64
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import           Data.String
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -63,8 +60,8 @@ importMenus fp = do
   importMenuSystem ms
 
 menu :: EntryM () -> MenuM Menu
-menu entries = do
-  es <- execWriterT entries
+menu ents = do
+  es <- execWriterT ents
   cid <- genMenuID
   let mn = Menu cid es
   -- Make sure this ID isn't already in use.
@@ -114,7 +111,7 @@ infixl 5 |-=
 
 infixl 5 |-//
 (|-//) :: MenuEntry -> Text -> MenuEntry
-(|-//) e url = e |-= (Nav url)
+(|-//) e u = e |-= (Nav u)
 
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+
@@ -131,3 +128,8 @@ infixl 5 |--
 (|--) :: MenuEntry -> Tag -> MenuEntry
 (|--) e t = e & reaction.unsetTags <>~ (Set.singleton t)
 
+
+-- | Like |-> but generates where it links off the value of a tag.
+infixl 5 |=>
+(|=>) :: MenuEntry -> Text -> Tag -> MenuEntry
+(|=>) e mpre tg = e & reaction .~ SubMenu mpre (Just tg)  (e ^. reaction.setTags) (e ^. reaction.unsetTags)
