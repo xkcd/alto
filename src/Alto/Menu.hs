@@ -34,9 +34,17 @@ data ClientState =
 makeLenses ''ClientState
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 7, JS.constructorTagModifier = map toLower} ''ClientState
 
+data TagLogic =
+   TagSet Tag
+ | TagUnset Tag
+ | TLAnd [TagLogic]
+ | TLOr [TagLogic]
+ | TLNot TagLogic
+ deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
+
 data EntryDisplay =
    Always
- | WhenTags { _whenSet :: Set Tag, _whenUnset :: Set Tag }
+ | When TagLogic
  | InactiveWhen EntryDisplay
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 

@@ -84,19 +84,25 @@ ent = tell . pure
 mnAction :: Menu -> EntryType
 mnAction m = SubMenu (m^.mid) Nothing mempty mempty
 
-makeWhenTags :: EntryDisplay -> EntryDisplay
-makeWhenTags (e@WhenTags {}) = e
-makeWhenTags _ = WhenTags mempty mempty
+requireLogic :: TagLogic -> EntryDisplay -> EntryDisplay
+requireLogic nl (When (TLAnd ol)) = When . TLAnd $ nl:ol
+requireLogic nl (When ol) = When (TLAnd [nl, ol])
+requireLogic nl _ = When nl
 
--- | Display the MenuEntry when a tag is set
+-- | Require a tag to be set for a menu entry to be displayed. 
 infixl 5 &+
 (&+) :: MenuEntry -> Tag -> MenuEntry
-(&+) e t = e & display %~ makeWhenTags & display.whenSet <>~ Set.singleton t
+(&+) e t = e & display %~ requireLogic (TagSet t)
 
--- | Display the MenuEntry when a tag is unset
+-- | Require a tag to be unset for a menu entry to be displayed. 
 infixl 5 &-
 (&-) :: MenuEntry -> Tag -> MenuEntry
-(&-) e t = e & display %~ makeWhenTags & display.whenUnset <>~ Set.singleton t
+(&-) e t = e & display %~ requireLogic (TagUnset t)
+
+-- | Requires a specific tag logic to be true.
+infix 5 &=
+(&=) :: MenuEntry -> TagLogic -> MenuEntry
+(&=) e tl = e & display %~ requireLogic tl
 
 -- Make a MenuEntry link to a submenu
 -- (|-$) :: MenuEntry -> MenuM Menu -> MenuM MenuEntry
@@ -118,6 +124,11 @@ infixl 5 |-+
 (|-+) :: MenuEntry -> Tag -> MenuEntry
 (|-+) e t = e & reaction.setTags <>~ (Map.singleton t "")
 
+-- | Make a MenuEntry sset a number of tags.
+infixl 5 |-+*
+(|-+*) :: MenuEntry -> [Tag] -> MenuEntry
+(|-+*) e t = e & reaction.setTags <>~ (Map.fromList . map ((,) "") $ t)
+
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+=
 (|-+=) :: MenuEntry -> Tag -> Text -> MenuEntry
@@ -128,6 +139,10 @@ infixl 5 |--
 (|--) :: MenuEntry -> Tag -> MenuEntry
 (|--) e t = e & reaction.unsetTags <>~ (Set.singleton t)
 
+-- | Make a MenuEntry unset a number of tags.
+infixl 5 |--*
+(|--*) :: MenuEntry -> [Tag] -> MenuEntry
+(|--*) e t = e & reaction.unsetTags <>~ (Set.fromList t)
 
 -- | Like |-> but generates where it links off the value of a tag.
 infixl 5 |=>
