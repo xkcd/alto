@@ -39,11 +39,11 @@ JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 7, JS.constructorTa
 
 data EntryDisplay =
    Always
- | WhenSet Tag
- | WhenNotSet Tag
+ | WhenTags { _whenSet :: Set Tag, _whenUnset :: Set Tag }
  | InactiveWhen EntryDisplay
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
+makeLenses ''EntryDisplay
 
 data Action =
    ColapseMenu

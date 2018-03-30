@@ -87,15 +87,19 @@ ent = tell . pure
 mnAction :: Menu -> EntryType
 mnAction m = SubMenu (m^.mid) Nothing mempty mempty
 
+makeWhenTags :: EntryDisplay -> EntryDisplay
+makeWhenTags (e@WhenTags {}) = e
+makeWhenTags _ = WhenTags mempty mempty
+
 -- | Display the MenuEntry when a tag is set
 infixl 5 &+
 (&+) :: MenuEntry -> Tag -> MenuEntry
-(&+) e t = e & display .~ WhenSet t
+(&+) e t = e & display %~ makeWhenTags & display.whenSet <>~ Set.singleton t
 
 -- | Display the MenuEntry when a tag is unset
 infixl 5 &-
 (&-) :: MenuEntry -> Tag -> MenuEntry
-(&-) e t = e & display .~ WhenNotSet t
+(&-) e t = e & display %~ makeWhenTags & display.whenUnset <>~ Set.singleton t
 
 -- Make a MenuEntry link to a submenu
 -- (|-$) :: MenuEntry -> MenuM Menu -> MenuM MenuEntry
