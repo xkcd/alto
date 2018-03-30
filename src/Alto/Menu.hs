@@ -20,7 +20,7 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import           Data.Text.Lens
-import           System.Directory (listDirectory)
+import           System.Directory (listDirectory, createDirectory)
 import           System.FilePath
 import           GHC.Generics
 
@@ -44,12 +44,20 @@ data EntryDisplay =
  | InactiveWhen EntryDisplay
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
+
+data Action =
+   ColapseMenu
+ | Nav { _url :: Text }
+ deriving (Read, Show, Eq, Ord, Generic)
+
+makeLenses ''Action
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''Action
+
 data EntryType =
-   Action { _setTags :: Map Tag Text, _unsetTags :: Set Tag }
+   Action { _setTags :: Map Tag Text, _unsetTags :: Set Tag, _act :: Maybe Action }
    -- ^ When the entry is clicked it does the above
  | SubMenu { _subMenu :: MenuID, _subIdPostfix :: Maybe Tag, _setTags :: Map Tag Text, _unsetTags :: Set Tag }
    -- ^ When the entry is selected, the submenu is displayed
- | Navigate { _loadUrl :: Text, _setTags :: Map Tag Text, _unsetTags :: Set Tag }
  -- | CallBack SomeHMACedThing
  deriving (Read, Show, Eq, Ord, Generic)
 
@@ -69,7 +77,7 @@ makeLenses ''MenuEntry
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''MenuEntry
 
 instance IsString MenuEntry where
-  fromString l = MEntry Nothing (T.pack l) Always (Action mempty mempty)
+  fromString l = MEntry Nothing (T.pack l) Always (Action mempty mempty Nothing)
 
 data Menu =
   Menu
@@ -132,6 +140,8 @@ loadMenus fp = do
 --   subcomponent of another MenuSystem.
 saveMenus :: FilePath -> MenuSystem -> IO ()
 saveMenus fp ms = do
+  createDirectory fp
+  createDirectory $ fp </> "menus"
   TIO.writeFile (fp</>"root") (ms^.topMenu.mid)
   ifor_ (ms^.menuMap) $ \i m ->
     JS.encodeFile ((fp</>"menus")</>(T.unpack i)) m

@@ -50,13 +50,17 @@ genTagID nm = do
 genMenuID :: MenuM MenuID
 genMenuID = lift $ randomString (StringOpts Base58 (256 `div` 8))
 
+importMenuSystem :: MenuSystem -> MenuM Menu
+importMenuSystem ms = do
+  menus <>= (ms ^. menuMap)
+  return (ms ^. topMenu)
+
 -- | Import a menu system for use in this menu system.
 --   Returns the root of said menu system.
 importMenus :: FilePath -> MenuM Menu
 importMenus fp = do
   ms <- lift $ loadMenus fp
-  menus <>= (ms ^. menuMap)
-  return (ms ^. topMenu)
+  importMenuSystem ms
 
 menu :: EntryM () -> MenuM Menu
 menu entries = do
@@ -100,9 +104,13 @@ infixl 5 |->
 (|->) :: MenuEntry -> Menu -> MenuEntry
 (|->) e m = e & reaction .~ SubMenu (m ^. mid) Nothing (e ^. reaction.setTags) (e ^. reaction.unsetTags)
 
+infixl 5 |-=
+(|-=) :: MenuEntry -> Action -> MenuEntry
+(|-=) e a = e & reaction .~ Action (e ^. reaction.setTags) (e ^. reaction.unsetTags) (Just a)
+
 infixl 5 |-//
 (|-//) :: MenuEntry -> Text -> MenuEntry
-(|-//) e url = e & reaction .~ Navigate url (e ^. reaction.setTags) (e ^. reaction.unsetTags)
+(|-//) e url = e |-= (Nav url)
 
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+
