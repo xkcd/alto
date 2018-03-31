@@ -27,7 +27,7 @@ async function main() {
       itemGen: id => state.itemGen(id),
       onSelect: (id, idx) => state.handleSelect(id, idx),
       parentEl: document.body,
-      parentBox: {left: ev.clientX, top: ev.clientY},
+      parentBox: {left: ev.clientX, right: ev.clientX, top: ev.clientY},
       attach: {x: 'left', y: 'top'},
     })
   }

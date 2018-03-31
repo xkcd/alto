@@ -6,12 +6,22 @@ const itemHighlightColor = '#f4f4f4'
 
 function menuItem(props) {
   const {item, itemGen, onSelect, onMouseEnter, onMouseLeave, attach} = props
+
+  const textEl = html`
+    <span>${item.label}</span>
+  `
+  style(textEl, {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+
   const el = html`
     <li
       onclick=${() => onSelect(item.menuId, item.idx)}
       onmouseenter=${ev => onMouseEnter(item, ev.target)}
       onmouseleave=${ev => onMouseLeave(item, ev.target)}
-    >${item.label}</li>
+    >${textEl}</li>
   `
   style(el, {
     display: 'flex',
@@ -75,6 +85,7 @@ function menu(props) {
     margin: 0,
     padding: 0,
     boxShadow: '0 0 15px rgba(0, 0, 0, .5)',
+    overflow: 'hidden',
   })
 
   function handleItemEnter(item, itemEl) {
@@ -155,19 +166,20 @@ async function showMenu(props) {
   const childAttach = {...attach}
 
   const pos = {}
-  if (attach.x === 'left') {
-    pos.left = parentBox.left - menuWidth
-    if (pos.left < 0) {
-      pos.left = parentBox.right
-      childAttach.x = 'right'
-    }
-  } else if (attach.x === 'right') {
+  const leftUnderHang = parentBox.left - menuWidth
+  const rightOverHang = parentBox.right + menuWidth - innerWidth
+  // if there's x under/overhang swap to side with most space
+  if (attach.x === 'left' && leftUnderHang < 0 && rightOverHang < -leftUnderHang) {
+    childAttach.x = 'right'
+  } else if (attach.x === 'right' && rightOverHang > 0 && -leftUnderHang < rightOverHang) {
+    childAttach.x = 'left'
+  }
+  if (childAttach.x === 'left') {
+    pos.left = Math.max(0, leftUnderHang)
+    pos.maxWidth = parentBox.left - pos.left
+  } else if (childAttach.x === 'right') {
     pos.left = parentBox.right
-    const overHang = parentBox.right + menuWidth - innerWidth
-    if (overHang > 0) {
-      pos.left = parentBox.left - menuWidth
-      childAttach.x = 'left'
-    }
+    pos.maxWidth = innerWidth - pos.left
   }
 
   if (attach.y === 'bottom') {
@@ -180,10 +192,11 @@ async function showMenu(props) {
     pos.top = parentBox.top
     const overHang = parentBox.top + menuHeight - innerHeight
     if (overHang > 0) {
-      pos.top -= overHang
+      pos.top = Math.max(0, pos.top - overHang)
       childAttach.y = 'bottom'
     }
   }
+  pos.maxHeight = innerHeight - pos.top
 
   // render
   el = menu({
