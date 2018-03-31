@@ -33,7 +33,7 @@ type EntryM a = WriterT [MenuEntry] (StateT CompState IO) a
 -- | Loads a subgraph if it exists, otherwise compiles it.
 subGraph :: Text -> MenuM Menu -> MenuM Menu
 subGraph sgName desc =
-  E.catch (lift $ refSubGraph sgName) $ \(_::E.SomeException) -> do
+  E.catch (lift $ refSubGraph sgName) $ \(e::E.SomeException) -> do
     ms <- lift $ compileRoot sgName desc
     lift $ saveSubGraph sgName ms
     return . fromJust $ ms^.menuMap.at (ms^.topMenu.mid)

@@ -1,9 +1,11 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Alto.Menu where
 
 import           Control.Lens
+import qualified Control.Monad.Catch as E
 import qualified Data.Aeson as JS
 import qualified Data.Aeson.TH as JS
 import           Data.Aeson (FromJSON, ToJSON)
@@ -117,6 +119,9 @@ data CompState =
 
 makeLenses ''CompState
 
+existDirectory :: FilePath -> IO ()
+existDirectory fp = E.catch (createDirectory fp) (\(_::E.SomeException) -> return ())
+
 -- | Load a menu from a file
 loadMenu :: FilePath -> IO Menu
 loadMenu fp = do
@@ -137,24 +142,24 @@ loadMenus = do
 --   subcomponent of another MenuSystem.
 saveMenus :: MenuSystem -> IO ()
 saveMenus ms = do
-  createDirectory "graph"
+  existDirectory "graph"
   JS.encodeFile ("graph"</>"root") . MenuRoot (ClientState mempty) $ ms^.topMenu
   storeSubMenus ms
 
 storeSubMenus :: MenuSystem -> IO ()
 storeSubMenus ms = do
-  createDirectory $ "graph" </> "menu"
+  existDirectory $ "graph" </> "menu"
   ifor_ (ms^.menuMap) $ \i m ->
     JS.encodeFile (("graph"</>"menu")</>(T.unpack i)) m
 
 saveSubGraph :: Text -> MenuSystem -> IO ()
 saveSubGraph subname ms = do
-  createDirectory "graph"
+  existDirectory "graph"
   storeSubMenus ms
-  createDirectory $ "graph" </> "subgraph"
+  existDirectory $ "graph" </> "subgraph"
   TIO.writeFile (("graph"</>"subgraph")</>(T.unpack subname)) (ms^.topMenu.mid)
 
 refSubGraph :: Text -> IO Menu
 refSubGraph subname = do
   mnId <- TIO.readFile (("graph"</>"subgraph")</>(T.unpack subname))
-  loadMenu $ (("graph"</>"menu")</>(T.unpack subname))</>(T.unpack mnId)
+  loadMenu $ ("graph"</>"menu")</>(T.unpack mnId)
