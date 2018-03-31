@@ -1,0 +1,14 @@
+{
+  "presets": [
+    ["env", {
+      "targets": {
+        "browsers": ["last 1 chrome versions"]
+      }
+    }]
+  ],
+  "plugins": [
+    "nanohtml",
+    "transform-object-rest-spread",
+    "transform-runtime"
+  ]
+}
