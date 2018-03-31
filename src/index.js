@@ -30,6 +30,7 @@ async function main() {
       parentBox: {left: ev.clientX, right: ev.clientX, top: ev.clientY},
       attach: {x: 'left', y: 'top'},
     })
+    document.body.appendChild(menuEl)
   }
 
   document.body.appendChild(buttonEl)

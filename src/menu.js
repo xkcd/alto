@@ -1,4 +1,5 @@
 import html from 'nanohtml'
+import morph from 'nanomorph'
 import style from 'dom-css'
 
 const itemBackgroundColor = '#e4e4e4'
@@ -75,74 +76,80 @@ function menuItem(props) {
 function menu(props) {
   const {items, itemGen, onSelect, attach} = props
 
-  let childMenuEl
-  let highlightedItemEl
+  let itemEls
+  if (items) {
+    let childMenuEl
+    let highlightedItemEl
 
-  const itemEls = items.map(item => menuItem({
-    item,
-    itemGen,
-    onMouseEnter: handleItemEnter,
-    onMouseLeave: handleItemLeave,
-    onSelect,
-    attach,
-  }))
+    itemEls = items.map(item => menuItem({
+      item,
+      itemGen,
+      onMouseEnter: handleItemEnter,
+      onMouseLeave: handleItemLeave,
+      onSelect,
+      attach,
+    }))
+
+    function handleItemEnter(item, itemEl) {
+      updateHighlighted(item, itemEl)
+    }
+
+    function handleItemLeave() {
+      updateHighlighted(null, null)
+    }
+
+    function updateHighlighted(item, itemEl) {
+      if (itemEl === highlightedItemEl) {
+        return
+      }
+
+      if (!item && childMenuEl) {
+        return
+      }
+
+      if (highlightedItemEl) {
+        style(highlightedItemEl, {
+          backgroundColor: itemBackgroundColor,
+        })
+      }
+
+      highlightedItemEl = itemEl
+
+      if (itemEl) {
+        style(itemEl, {
+          backgroundColor: itemHighlightColor,
+        })
+
+        if (childMenuEl) {
+          childMenuEl.parentNode.removeChild(childMenuEl)
+          childMenuEl = null
+        }
+
+        const itemBox = itemEl.getBoundingClientRect()
+        if (item.subMenuId) {
+          onSelect(item.menuId, item.idx)
+          childMenuEl = showMenu({
+            id: item.subMenuId,
+            itemGen,
+            onSelect,
+            parentBox: itemBox,
+            attach,
+          })
+          itemEl.parentNode.appendChild(childMenuEl)
+        }
+      }
+    }
+  }
 
   const el = html`
     <ul>
       ${itemEls}
     </ul>
   `
-  style(el, menuStyle)
-
-  function handleItemEnter(item, itemEl) {
-    updateHighlighted(item, itemEl)
-  }
-
-  function handleItemLeave() {
-    updateHighlighted(null, null)
-  }
-
-  async function updateHighlighted(item, itemEl) {
-    if (itemEl === highlightedItemEl) {
-      return
-    }
-
-    if (!item && childMenuEl) {
-      return
-    }
-
-    if (highlightedItemEl) {
-      style(highlightedItemEl, {
-        backgroundColor: itemBackgroundColor,
-      })
-    }
-
-    highlightedItemEl = itemEl
-
-    if (itemEl) {
-      style(itemEl, {
-        backgroundColor: itemHighlightColor,
-      })
-
-      if (childMenuEl) {
-        childMenuEl.parentNode.removeChild(childMenuEl)
-        childMenuEl = null
-      }
-
-      const itemBox = itemEl.getBoundingClientRect()
-      if (item.subMenuId) {
-        onSelect(item.menuId, item.idx)
-        childMenuEl = await showMenu({
-          id: item.subMenuId,
-          itemGen,
-          onSelect,
-          parentEl: el,
-          parentBox: itemBox,
-          attach,
-        })
-      }
-    }
-  }
+  style(el, {
+    ...menuStyle,
+    opacity: items ? 1 : 0,
+  })
 
   return el
 }
@@ -201,39 +208,37 @@ function positionMenu(el, parentBox, attach) {
 }
 
 function showMenu(props) {
-  const {itemGen, onSelect, id, parentEl, parentBox, attach} = props
+  const {itemGen, onSelect, id, parentBox, attach} = props
 
-  let containerEl
+  let el
 
   async function loadMenu() {
     const items = await itemGen(id)
 
     // render for size measurement
-    let el = menu({
+    let sizingEl = menu({
       items,
       itemGen,
       attach
     })
-    const {pos, childAttach} = positionMenu(el, parentBox, attach)
+    const {pos, childAttach} = positionMenu(sizingEl, parentBox, attach)
 
     // render
-    el = menu({
+    const finalEl = menu({
       items,
       itemGen,
       onSelect,
       attach: childAttach,
     })
-    style(el, pos)
+    style(finalEl, pos)
 
-    containerEl.appendChild(el)
+    morph(el, finalEl)
   }
 
-  containerEl = html`<div />`
-  parentEl.appendChild(containerEl)
-
+  el = menu({})
   loadMenu()
 
-  return containerEl
+  return el
 }
 
 // XXX work around https://github.com/babel/babylon/issues/257

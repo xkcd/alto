@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "nanohtml": "^1.2.2",
+    "nanomorph": "^5.1.3",
     "dom-css": "^2.1.0",
     "unfetch": "^3.0.0",
     "babel-runtime": "^6.26.0"
