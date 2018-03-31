@@ -47,6 +47,7 @@ library
       , list-tries
       , MonadRandom
       , random
+      , exceptions
 
 executable alto
   -- other-modules:

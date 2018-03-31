@@ -7,6 +7,7 @@ module Alto.Compile where
 
 import           Alto.Menu
 import           Control.Lens
+import qualified Control.Monad.Catch as E
 import           Control.Monad.Writer
 import           Control.Monad.State
 import qualified Crypto.Hash.SHA256 as SHA256
@@ -16,6 +17,7 @@ import qualified Data.ByteString.Base64.URL as B64
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as Map
+import           Data.Maybe (fromJust)
 import qualified Data.Set as Set
 import           Data.Text (Text)
 import qualified Data.Text as T
@@ -27,6 +29,14 @@ saltDerivingParams = Scrypt.defaultParams
 
 type MenuM a = StateT CompState IO a
 type EntryM a = WriterT [MenuEntry] (StateT CompState IO) a
+
+-- | Loads a subgraph if it exists, otherwise compiles it.
+subGraph :: Text -> MenuM Menu -> MenuM Menu
+subGraph sgName desc =
+  E.catch (lift $ refSubGraph sgName) $ \(_::E.SomeException) -> do
+    ms <- lift $ compileRoot sgName desc
+    lift $ saveSubGraph sgName ms
+    return . fromJust $ ms^.menuMap.at (ms^.topMenu.mid)
 
 -- | Compiles a MenuSystem given a name we produce a salt from.
 --   Any menu systems sharing tags must agree on the project name.
@@ -55,17 +65,12 @@ genTagID nm = do
 genMenuID :: MenuM MenuID
 genMenuID = lift $ randomString (StringOpts Base58 idBytes)
 
+-- | Import a menu system for use in this menu system.
+--   Returns the root of said menu system.
 importMenuSystem :: MenuSystem -> MenuM Menu
 importMenuSystem ms = do
   menus <>= (ms ^. menuMap)
   return (ms ^. topMenu)
-
--- | Import a menu system for use in this menu system.
---   Returns the root of said menu system.
-importMenus :: FilePath -> MenuM Menu
-importMenus fp = do
-  ms <- lift $ loadMenus fp
-  importMenuSystem ms
 
 menu :: EntryM () -> MenuM Menu
 menu ents = do

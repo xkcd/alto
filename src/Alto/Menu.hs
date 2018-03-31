@@ -8,7 +8,6 @@ import qualified Data.Aeson as JS
 import qualified Data.Aeson.TH as JS
 import           Data.Aeson (FromJSON, ToJSON)
 import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Lazy as BSL
 import           Data.Char (toLower)
 import           Data.Map (Map)
 import qualified Data.Map as Map
@@ -121,42 +120,41 @@ makeLenses ''CompState
 -- | Load a menu from a file
 loadMenu :: FilePath -> IO Menu
 loadMenu fp = do
-  either error return =<< JS.eitherDecode' <$> BSL.readFile fp
+  either error return =<< JS.eitherDecodeFileStrict' fp
 
 -- | Loads a MenuSystem directory. The format is:
 --   FP:
 --     - root <- file containing root menu's ID
 --     - menus/ <- directory of one file per menu
-loadMenus :: FilePath -> IO MenuSystem
-loadMenus fp = do
-  rmID <- TIO.readFile $ fp </> "root"
-  mns <- (fmap ((fp</>"menu")</>) <$> listDirectory (fp </> "menu")) >>=
+loadMenus :: IO MenuSystem
+loadMenus = do
+  root <- either error return =<< JS.eitherDecodeFileStrict' ("graph" </> "root")
+  mns <- (fmap (("graph"</>"menu")</>) <$> listDirectory ("graph" </> "menu")) >>=
          (fmap (Map.fromList . map (\a -> (a ^.mid, a))) . mapM loadMenu)
-  maybe (error "Couldn't find root menu in MenuSystem!") return . fmap (MenuSystem mns) $
-    mns  ^.at rmID
+  return . MenuSystem mns $ root^.rootMenu
 
 -- | Save a MenuSystem so it can be reloaded later for serving or use as a
 --   subcomponent of another MenuSystem.
-saveMenus :: FilePath -> MenuSystem -> IO ()
-saveMenus fp ms = do
-  createDirectory fp
-  TIO.writeFile (fp</>"root") (ms^.topMenu.mid)
-  storeSubMenus fp ms
+saveMenus :: MenuSystem -> IO ()
+saveMenus ms = do
+  createDirectory "graph"
+  JS.encodeFile ("graph"</>"root") . MenuRoot (ClientState mempty) $ ms^.topMenu
+  storeSubMenus ms
 
-storeSubMenus :: FilePath -> MenuSystem -> IO ()
-storeSubMenus fp ms = do
-  createDirectory $ fp </> "menu"
+storeSubMenus :: MenuSystem -> IO ()
+storeSubMenus ms = do
+  createDirectory $ "graph" </> "menu"
   ifor_ (ms^.menuMap) $ \i m ->
-    JS.encodeFile ((fp</>"menus")</>(T.unpack i)) m
+    JS.encodeFile (("graph"</>"menu")</>(T.unpack i)) m
 
-saveSubgraph :: FilePath -> Text -> MenuSystem -> IO ()
-saveSubgraph graph subname ms = do
-  createDirectory graph
-  storeSubMenus graph ms
-  createDirectory $ graph </> "subgraph"
-  TIO.writeFile ((graph</>"subgraph")</>(T.unpack subname)) (ms^.topMenu.mid)
+saveSubGraph :: Text -> MenuSystem -> IO ()
+saveSubGraph subname ms = do
+  createDirectory "graph"
+  storeSubMenus ms
+  createDirectory $ "graph" </> "subgraph"
+  TIO.writeFile (("graph"</>"subgraph")</>(T.unpack subname)) (ms^.topMenu.mid)
 
-refSubGraph :: FilePath -> Text -> IO Menu
-refSubGraph graph subname = do
-  mnId <- TIO.readFile ((graph</>"subgraph")</>(T.unpack subname))
-  loadMenu $ ((graph</>"menu")</>(T.unpack subname))</>(T.unpack mnId)
+refSubGraph :: Text -> IO Menu
+refSubGraph subname = do
+  mnId <- TIO.readFile (("graph"</>"subgraph")</>(T.unpack subname))
+  loadMenu $ (("graph"</>"menu")</>(T.unpack subname))</>(T.unpack mnId)
