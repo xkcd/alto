@@ -69,8 +69,7 @@ export default class StateMachine {
   
     let menuItems = []
     let data = await this.client.get(id)
-    for (let idx = 0; idx < data.entries.length; idx++) {
-      const entry = data.entries[idx]
+    for (const entry of data.entries) {
       const {reaction, display, disabled} = entry
 
       if (!this.evalTagLogic(display)) {
@@ -79,7 +78,7 @@ export default class StateMachine {
 
       menuItems.push({
         menuId: id,
-        idx,
+        idx: menuItems.length,
         label: entry.label,
         disabled: disabled && this.evalTagLogic(disabled),
         subMenuId: this.evalSubMenuId(reaction),
