@@ -114,6 +114,7 @@ function menu(props) {
 
       const itemBox = itemEl.getBoundingClientRect()
       if (item.subMenuId) {
+        onSelect(item.menuId, item.idx)
         childMenuEl = await showMenu({
           id: item.subMenuId,
           itemGen,
