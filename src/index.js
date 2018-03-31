@@ -12,7 +12,6 @@ async function main() {
   await state.init()
 
   let menuEl
-  const buttonEl = html`<button onclick=${handleMenuButtonClick}>menu</button>`
 
   function closeMenu() {
     if (menuEl) {
@@ -21,7 +20,7 @@ async function main() {
     }
   }
 
-  async function handleMenuButtonClick(ev) {
+  async function openMenu(ev) {
     closeMenu()
     menuEl = await showMenu({
       id: null,
@@ -29,17 +28,18 @@ async function main() {
       onSelect: (id, idx) => state.handleSelect(id, idx),
       parentEl: document.body,
       parentBox: {left: ev.clientX, right: ev.clientX, top: ev.clientY},
-      attach: {x: 'left', y: 'top'},
+      attach: {x: 'right', y: 'top'},
     })
     document.body.appendChild(menuEl)
   }
 
-  document.body.appendChild(buttonEl)
+  window.addEventListener('contextmenu', ev => {
+    ev.preventDefault()
+    openMenu(ev)
+  })
 
   window.addEventListener('click', ev => {
-    if (ev.target !== buttonEl) {
-      closeMenu()
-    }
+    closeMenu()
   })
 }
 
