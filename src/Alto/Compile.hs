@@ -100,7 +100,7 @@ infixl 5 &-
 (&-) e t = e & display %~ requireLogic (TagUnset t)
 
 -- | Requires a specific tag logic to be true.
-infix 5 &=
+infixl 5 &=
 (&=) :: MenuEntry -> TagLogic -> MenuEntry
 (&=) e tl = e & display %~ requireLogic tl
 
