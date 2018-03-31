@@ -148,7 +148,7 @@ function menuItem(props) {
   const el = html`
     <li
       class="${classes}"
-      onclick=${item.disabled ? null : () => onSelect(item.menuId, item.idx)}
+      onclick=${item.disabled ? null : () => onSelect(item.menuId, item.entryIdx)}
       onmouseenter=${item.disabled ? null : ev => onMouseEnter(item, ev.target)}
       onmouseleave=${item.disabled ? null : ev => onMouseLeave(item, ev.target)}
     >

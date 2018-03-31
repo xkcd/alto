@@ -69,7 +69,8 @@ export default class StateMachine {
   
     let menuItems = []
     let data = await this.client.get(id)
-    for (const entry of data.entries) {
+    for (let idx = 0; idx < data.entries.length; idx++) {
+      const entry = data.entries[idx]
       const {reaction, display, disabled} = entry
 
       if (!this.evalTagLogic(display)) {
@@ -78,6 +79,7 @@ export default class StateMachine {
 
       menuItems.push({
         menuId: id,
+        entryIdx: idx,
         idx: menuItems.length,
         label: entry.label,
         disabled: disabled && this.evalTagLogic(disabled),
@@ -89,9 +91,9 @@ export default class StateMachine {
     return menuItems
   }
 
-  async handleSelect(menuId, idx) {
+  async handleSelect(menuId, entryIdx) {
     const {entries} = await this.client.get(menuId)
-    const {reaction} = entries[idx]
+    const {reaction} = entries[entryIdx]
 
     if (reaction.setTags) {
       for (const [key, value] of Object.entries(reaction.setTags)) {
