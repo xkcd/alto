@@ -29,17 +29,16 @@ library
       , Alto.Example
       , Alto.Web
   build-depends:
-        base >=4.11 && <4.12
-      , mtl == 2.2.*
-      , text == 1.2.*
-      , containers == 0.5.*
-      , bytestring == 0.10.*
-      , lens == 4.16.*
-      , cryptohash-sha256 == 0.11.*
-      , scrypt == 0.5.*
-      , base64-bytestring == 1.0.*
-      , aeson == 1.3.*
---      , wai
+        base >=4.10 && <4.12
+      , mtl
+      , text
+      , containers
+      , bytestring
+      , lens
+      , cryptohash-sha256
+      , scrypt
+      , base64-bytestring
+      , aeson
       , servant-server
       , filepath
       , directory
@@ -56,6 +55,6 @@ executable alto
   default-language:    Haskell2010
   main-is:             Main.hs
   build-depends:
-        base >=4.11 && <4.12
+        base >=4.10 && <4.12
       , alto
       , warp
