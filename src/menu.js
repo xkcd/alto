@@ -105,6 +105,10 @@ const menuItemStyles = css`
   .right > span {
     margin-right: 15px;
   }
+
+  .spacer {
+    width: 15px;
+  }
 `
 
 function menuItem(props) {
@@ -119,12 +123,11 @@ function menuItem(props) {
     } else if (item.subMenuId) {
       edgeEl = arrow({direction: attach.x})
     }
-    if (edgeEl) {
-      if (attach.x === 'left') {
-        preEdgeEl = edgeEl
-      } else if (attach.x === 'right') {
-        postEdgeEl = edgeEl
-      }
+    const edgeSpacer = html`<div class="${menuItemStyles.spacer}">${edgeEl}</div>`
+    if (attach.x === 'left') {
+      preEdgeEl = edgeSpacer
+    } else if (attach.x === 'right') {
+      postEdgeEl = edgeSpacer
     }
   }
 
