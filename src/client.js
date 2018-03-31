@@ -8,7 +8,7 @@ export default class Client {
 
   async get(id) {
     if (this.cache.has(id)) {
-      return this.cache.get(id)
+      return await this.cache.get(id)
     }
 
     let path
@@ -18,14 +18,13 @@ export default class Client {
       path = `/menu/${id}`
     }
 
-    let resp = await fetch(this.baseURL + path)
-    let data = await resp.json()
+    const dataFetch = fetch(this.baseURL + path).then(resp => resp.json())
+    this.cache.set(id, dataFetch)
 
-    this.cache.set(id, data)
+    const data = await dataFetch
     if (data.Menu) {
-      this.cache.set(data.Menu.id, data.Menu)
+      this.cache.set(data.Menu.id, Promise.resolve(data.Menu))
     }
-
     return data
   }
 }
