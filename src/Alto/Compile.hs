@@ -84,25 +84,25 @@ ent = tell . pure
 mnAction :: Menu -> EntryType
 mnAction m = SubMenu (m^.mid) Nothing mempty mempty
 
-requireLogic :: TagLogic -> EntryDisplay -> EntryDisplay
-requireLogic nl (When (TLAnd ol)) = When . TLAnd $ nl:ol
-requireLogic nl (When ol) = When (TLAnd [nl, ol])
-requireLogic nl _ = When nl
+andLogic :: TagLogic -> TagLogic -> TagLogic
+andLogic nl (TLAnd ol) = TLAnd $ nl:ol
+andLogic nl Always = nl
+andLogic nl ol = TLAnd [nl, ol]
 
--- | Require a tag to be set for a menu entry to be displayed. 
+-- | Require a tag to be set for a menu entry to be displayed.
 infixl 5 &+
 (&+) :: MenuEntry -> Tag -> MenuEntry
-(&+) e t = e & display %~ requireLogic (TagSet t)
+(&+) e t = e & display %~ andLogic (TagSet t)
 
--- | Require a tag to be unset for a menu entry to be displayed. 
+-- | Require a tag to be unset for a menu entry to be displayed.
 infixl 5 &-
 (&-) :: MenuEntry -> Tag -> MenuEntry
-(&-) e t = e & display %~ requireLogic (TagUnset t)
+(&-) e t = e & display %~ andLogic (TagUnset t)
 
 -- | Requires a specific tag logic to be true.
 infixl 5 &=
 (&=) :: MenuEntry -> TagLogic -> MenuEntry
-(&=) e tl = e & display %~ requireLogic tl
+(&=) e tl = e & display %~ andLogic tl
 
 -- Make a MenuEntry link to a submenu
 -- (|-$) :: MenuEntry -> MenuM Menu -> MenuM MenuEntry

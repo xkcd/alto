@@ -35,20 +35,13 @@ makeLenses ''ClientState
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 7, JS.constructorTagModifier = map toLower} ''ClientState
 
 data TagLogic =
-   TagSet Tag
+   Always
+ | TagSet Tag
  | TagUnset Tag
  | TLAnd [TagLogic]
  | TLOr [TagLogic]
  | TLNot TagLogic
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
-
-data EntryDisplay =
-   Always
- | When TagLogic
- | InactiveWhen EntryDisplay
- deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
-
-makeLenses ''EntryDisplay
 
 data Action =
    ColapseMenu
@@ -73,7 +66,8 @@ data MenuEntry =
   MEntry
   { _icon :: Maybe Text
   , _label :: Text
-  , _display :: EntryDisplay
+  , _display :: TagLogic
+  , _active :: TagLogic
   , _reaction :: EntryType
   }
   deriving (Read, Show, Eq, Ord, Generic)
@@ -82,7 +76,7 @@ makeLenses ''MenuEntry
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''MenuEntry
 
 instance IsString MenuEntry where
-  fromString l = MEntry Nothing (T.pack l) Always (Action mempty mempty Nothing)
+  fromString l = MEntry Nothing (T.pack l) Always Always (Action mempty mempty Nothing)
 
 data Menu =
   Menu
