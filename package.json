@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "webpack-dev-server --mode development --hot --inline --content-base build/",
-    "build": "webpack -p --progress"
+    "build": "webpack --mode production -p --progress"
   },
   "dependencies": {
     "nanohtml": "^1.2.2",
