@@ -11,6 +11,7 @@ export default class StateMachine {
     let root = await this.client.get()
     this.tags = new Map(Object.entries(root.State.Tags))
     this.rootId = root.Menu.id
+    this.prefetch(this.rootId, 2)
   }
 
   evalTagLogic(whenTree) {
@@ -34,23 +35,27 @@ export default class StateMachine {
     return exec(whenTree)
   }
 
-  async prefetch(id, depth=2) {
+  evalSubMenuId(reaction) {
+    const {subMenu, subIdPostfix} = reaction
+    if (subIdPostfix) {
+      return subMenu + this.tags.get(subIdPostfix)
+    }
+    return subMenu
+  }
+
+  async prefetch(id, depth=1) {
     let fetches = []
     let data = await this.client.get(id)
     for (const entry of data.entries) {
-      const {subMenu, subIdPostfix, setTags} = entry
-      if (!subMenu) {
+      const subMenuId = this.evalSubMenuId(entry.reaction)
+      if (!subMenuId) {
         continue
       }
 
-      if (subIdPostfix) {
-        fetches.push(this.client.get(subMenu + this.tags.get(subIdPostfix)))
-      } else {
-        fetches.push(this.client.get(subMenu))
-      }
+      fetches.push(this.client.get(subMenuId))
 
       if (depth > 1) {
-        fetches.push(this.prefetch(entry.id, depth - 1))
+        fetches.push(this.prefetch(subMenuId, depth - 1))
       }
     }
 
@@ -72,22 +77,13 @@ export default class StateMachine {
         continue
       }
 
-      let subMenuId
-      if (reaction.subMenu) {
-        if (reaction.subMenuPostfix) {
-          subMenuId = reaction.subMenu + reaction.subMenuPostfix
-        } else {
-          subMenuId = reaction.subMenu
-        }
-      }
-
       menuItems.push({
         menuId: id,
         idx,
         label: entry.label,
         disabled: disabled && this.evalTagLogic(disabled),
         reaction: entry.reaction,
-        subMenuId,
+        subMenuId: this.evalSubMenuId(reaction),
       })
     }
 
