@@ -30,6 +30,7 @@ function menuItem(props) {
     <span>${item.label}</span>
   `
   style(textEl, {
+    flex: 1,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
