@@ -82,7 +82,6 @@ export default class StateMachine {
         idx,
         label: entry.label,
         disabled: disabled && this.evalTagLogic(disabled),
-        reaction: entry.reaction,
         subMenuId: this.evalSubMenuId(reaction),
       })
     }
