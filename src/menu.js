@@ -22,7 +22,7 @@ function menuItem(props) {
     userSelect: 'none',
   })
 
-  if (!!item.subMenuId) {
+  if (item.subMenuId) {
     const caretEl = html`<div />`
     style(caretEl, {
       width: 0,
