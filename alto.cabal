@@ -24,6 +24,7 @@ library
   exposed-modules:
         Alto.Menu
       , Alto.Compile
+      , Alto.Compile.Maze
       , Alto.Compile.Navigations
       , Alto.Example
       , Alto.Web
@@ -44,6 +45,8 @@ library
       , directory
       , random-string
       , list-tries
+      , MonadRandom
+      , random
 
 executable alto
   -- other-modules:
