@@ -18,11 +18,13 @@ function arrow(props) {
       borderTop: `${size}px solid transparent`,
       borderBottom: `${size}px solid transparent`,
       borderLeft: `${size}px solid black`,
+      marginLeft: 8,
     },
     'left': {
       borderTop: `${size}px solid transparent`,
       borderBottom: `${size}px solid transparent`,
       borderRight: `${size}px solid black`,
+      marginRight: 8,
     }
   }
 
@@ -53,7 +55,7 @@ const spinnerStyles = css`
 
   .spinner {
     display: flex;
-    margin: 0 -6px;
+    margin: 0 -2px;
     opacity: .5;
     animation: spin 1s linear infinite;
   }
@@ -97,11 +99,11 @@ const menuItemStyles = css`
   }
 
   .left > span {
-    margin-left: 20px;
+    margin-left: 15px;
   }
 
   .right > span {
-    margin-right: 20px;
+    margin-right: 15px;
   }
 `
 
