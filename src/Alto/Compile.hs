@@ -88,8 +88,8 @@ mnAction :: Menu -> EntryType
 mnAction m = SubMenu (m^.mid) Nothing mempty mempty
 
 andLogic :: TagLogic -> TagLogic -> TagLogic
-andLogic nl (TLAnd ol) = TLAnd $ nl:ol
 andLogic nl Always = nl
+andLogic nl (TLAnd ol) = TLAnd $ nl:ol
 andLogic nl ol = TLAnd [nl, ol]
 
 -- | Require a tag to be set for a menu entry to be displayed.
