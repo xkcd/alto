@@ -166,7 +166,7 @@ async function showMenu(props) {
   const childAttach = {...attach}
 
   const pos = {}
-  const leftUnderHang = parentBox.left - menuWidth
+  const leftUnderHang = parentBox.left - menuWidth - 1
   const rightOverHang = parentBox.right + menuWidth - innerWidth
   // if there's x under/overhang swap to side with most space
   if (attach.x === 'left' && leftUnderHang < 0 && rightOverHang < -leftUnderHang) {
