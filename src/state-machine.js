@@ -59,18 +59,13 @@ export default class StateMachine {
 
   async itemGen(id) {
     if (id == null) {
-      return [
-        {
-          id: null,
-          label: 'root',
-          subMenuId: this.rootId,
-        }
-      ]
+      id = this.rootId
     }
   
     let menuItems = []
     let data = await this.client.get(id)
-    for (const entry of data.entries) {
+    for (let idx = 0; idx < data.entries.length; idx++) {
+      const entry = data.entries[idx]
       const {reaction, display, disabled} = entry
 
       if (!this.evalTagLogic(display)) {
@@ -87,11 +82,12 @@ export default class StateMachine {
       }
 
       menuItems.push({
-        id: entry.id,
+        menuId: id,
+        idx,
         label: entry.label,
         disabled: disabled && this.evalTagLogic(disabled),
+        reaction: entry.reaction,
         subMenuId,
-        onSelect: () => this.handleReaction(entry.reaction),
       })
     }
 
@@ -99,7 +95,10 @@ export default class StateMachine {
     return menuItems
   }
 
-  handleReaction(reaction) {
+  async handleSelect(menuId, idx) {
+    const {entries} = await this.client.get(menuId)
+    const {reaction} = entries[idx]
+
     if (reaction.setTags) {
       for (const [key, value] of Object.entries(reaction.setTags)) {
         this.tags.set(key, value)
@@ -107,7 +106,7 @@ export default class StateMachine {
     }
 
     if (reaction.unsetTags) {
-      for (key of reaction.unsetTags) {
+      for (const key of reaction.unsetTags) {
         this.tags.delete(key)
       }
     }

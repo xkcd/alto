@@ -1,25 +1,24 @@
 import html from 'nanohtml'
 import style from 'dom-css'
 
+const itemBackgroundColor = '#e4e4e4'
+const itemHighlightColor = '#f4f4f4'
+
 function menuItem(props) {
-  const {item, itemGen, attach} = props
-  let childMenu
-  const backgroundColor = '#e4e4e4'
-  const highlightColor = '#f4f4f4'
+  const {item, itemGen, onSelect, onMouseEnter, onMouseLeave, attach} = props
   const el = html`
     <li
-      onclick=${handleMouseClick}
-      onmouseenter=${handleMouseEnter}
-      onmouseleave=${handleMouseLeave}
+      onclick=${() => onSelect(item.menuId, item.idx)}
+      onmouseenter=${ev => onMouseEnter(item, ev.target)}
+      onmouseleave=${ev => onMouseLeave(item, ev.target)}
     >${item.label}</li>
   `
   style(el, {
-    position: 'relative',
     display: 'flex',
     alignItems: 'center',
     cursor: 'default',
     padding: '8px 10px',
-    backgroundColor,
+    backgroundColor: itemBackgroundColor,
     userSelect: 'none',
   })
 
@@ -47,52 +46,27 @@ function menuItem(props) {
     }
   }
 
-  async function handleMouseEnter() {
-    style(el, {
-      backgroundColor: highlightColor,
-      zIndex: 100,
-    })
-    const itemBox = el.getBoundingClientRect()
-    if (item.subMenuId) {
-      childMenu = await showMenu({
-        id: item.subMenuId,
-        itemGen,
-        parentEl: el,
-        parentBox: itemBox,
-        attach,
-      })
-    }
-  }
-
-  function handleMouseLeave() {
-    style(el, {
-      backgroundColor,
-      zIndex: null,
-    })
-    if (childMenu) {
-      el.removeChild(childMenu)
-      childMenu = null
-    }
-  }
-
-  function handleMouseClick() {
-    if (item.onSelect) {
-      item.onSelect()
-    }
-  }
-
   return el
 }
 
 function menu(props) {
-  const {items, itemGen, attach} = props
+  const {items, itemGen, onSelect, attach} = props
+
+  let childMenuEl
+  let highlightedItemEl
+
+  const itemEls = items.map(item => menuItem({
+    item,
+    itemGen,
+    onMouseEnter: handleItemEnter,
+    onMouseLeave: handleItemLeave,
+    onSelect,
+    attach,
+  }))
+
   const el = html`
     <ul>
-      ${items.map(item => menuItem({
-        item,
-        itemGen,
-        attach,
-      }))}
+      ${itemEls}
     </ul>
   `
   style(el, {
@@ -102,11 +76,61 @@ function menu(props) {
     padding: 0,
     boxShadow: '0 0 15px rgba(0, 0, 0, .5)',
   })
+
+  function handleItemEnter(item, itemEl) {
+    updateHighlighted(item, itemEl)
+  }
+
+  function handleItemLeave() {
+    updateHighlighted(null, null)
+  }
+
+  async function updateHighlighted(item, itemEl) {
+    if (itemEl === highlightedItemEl) {
+      return
+    }
+
+    if (!item && childMenuEl) {
+      return
+    }
+
+    if (highlightedItemEl) {
+      style(highlightedItemEl, {
+        backgroundColor: itemBackgroundColor,
+      })
+    }
+
+    highlightedItemEl = itemEl
+
+    if (itemEl) {
+      style(itemEl, {
+        backgroundColor: itemHighlightColor,
+      })
+
+      if (childMenuEl) {
+        childMenuEl.parentNode.removeChild(childMenuEl)
+        childMenuEl = null
+      }
+
+      const itemBox = itemEl.getBoundingClientRect()
+      if (item.subMenuId) {
+        childMenuEl = await showMenu({
+          id: item.subMenuId,
+          itemGen,
+          onSelect,
+          parentEl: el,
+          parentBox: itemBox,
+          attach,
+        })
+      }
+    }
+  }
+
   return el
 }
 
 async function showMenu(props) {
-  const {itemGen, id, parentEl, parentBox, attach} = props
+  const {itemGen, onSelect, id, parentEl, parentBox, attach} = props
   const items = await itemGen(id)
 
   // render for size measurement
@@ -164,6 +188,7 @@ async function showMenu(props) {
   el = menu({
     items,
     itemGen,
+    onSelect,
     attach: childAttach,
   })
   style(el, pos)
