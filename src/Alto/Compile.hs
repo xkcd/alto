@@ -83,6 +83,10 @@ menu ents = do
     error ("The menu "<>(show es)<>" was already in used!")
   return $ mn
 
+updateMenu :: Menu -> MenuM ()
+updateMenu m =
+  menus #%= (Map.insert (m ^. mid) m)
+
 uniqueTag :: MonadState CompState m => Text -> m Tag
 uniqueTag t = do
   tid <- genTagID t
