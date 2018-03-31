@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Alto.Web where
 
 import           Alto.Menu
@@ -18,7 +19,7 @@ data AltoConfig =
 makeLenses ''AltoConfig
 
 type RootAPI = "root" :> Get '[JSON] Root
-type MenuAPI = "menu" :> Capture "menuid" MenuID :> Get '[JSON] Menu
+type MenuAPI = "menu" :> Capture "menuid" MenuID :> Get '[JSON] (Headers '[Header "Cache-Control" Text] Menu)
 -- type CallbackAPI = "callback" :> ReqBody '[PlainText] ByteString :> Post '[JSON] Event
 
 type API = RootAPI :<|> MenuAPI
@@ -35,8 +36,11 @@ serveMenu cfg i =
     Nothing -> throwError err404
     Just m -> return m
 
+addCacheHeader :: Handler Menu -> Handler (Headers '[Header "Cache-Control" Text] Menu)
+addCacheHeader = fmap (addHeader "public, max-age=1")
+
 altoServer :: AltoConfig -> Server API
-altoServer cfg = serveRoot cfg :<|> serveMenu cfg 
+altoServer cfg = serveRoot cfg :<|> (addCacheHeader <$> serveMenu cfg)
 
 altoApp :: AltoConfig -> Application
 altoApp c = serve api (altoServer c)
