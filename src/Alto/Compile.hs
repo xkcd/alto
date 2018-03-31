@@ -1,4 +1,7 @@
-{-# LANGUAGE OverloadedStrings, ScopedTypeVariables, FlexibleContexts
+{-# LANGUAGE OverloadedStrings
+  , ScopedTypeVariables
+  , TupleSections
+  , FlexibleContexts
  #-}
 module Alto.Compile where
 
@@ -127,7 +130,7 @@ infixl 5 |-+
 -- | Make a MenuEntry sset a number of tags.
 infixl 5 |-+*
 (|-+*) :: MenuEntry -> [Tag] -> MenuEntry
-(|-+*) e t = e & reaction.setTags <>~ (Map.fromList . map ((,) "") $ t)
+(|-+*) e t = e & reaction.setTags <>~ (Map.fromList . map (,"") $ t)
 
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+=
