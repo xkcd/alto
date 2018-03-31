@@ -152,20 +152,20 @@ async function showMenu(props) {
 
   // measure position and flip attach direction if necessary
   const {innerHeight, innerWidth} = window
-  let pos
   const childAttach = {...attach}
 
+  const pos = {}
   if (attach.x === 'left') {
-    pos = {left: parentBox.left - menuWidth}
+    pos.left = parentBox.left - menuWidth
     if (pos.left < 0) {
-      pos = {left: parentBox.right}
+      pos.left = parentBox.right
       childAttach.x = 'right'
     }
   } else if (attach.x === 'right') {
-    pos = {left: parentBox.right}
+    pos.left = parentBox.right
     const overHang = parentBox.right + menuWidth - innerWidth
     if (overHang > 0) {
-      pos = {left: parentBox.left - menuWidth}
+      pos.left = parentBox.left - menuWidth
       childAttach.x = 'left'
     }
   }
