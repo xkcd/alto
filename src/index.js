@@ -1,11 +1,12 @@
 import html from 'nanohtml'
 
+import {ALTO_ENDPOINT} from './config'
 import Client from './client'
 import StateMachine from './state-machine'
 import showMenu from './menu'
 
 async function main() {
-  const client = new Client('http://35.224.103.20:8081')
+  const client = new Client(ALTO_ENDPOINT)
   const state = new StateMachine(client)
 
   await state.init()
