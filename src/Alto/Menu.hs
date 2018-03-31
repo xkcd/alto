@@ -130,7 +130,7 @@ loadMenu fp = do
 loadMenus :: FilePath -> IO MenuSystem
 loadMenus fp = do
   rmID <- TIO.readFile $ fp </> "root"
-  mns <- (fmap ((fp</>"menus")</>) <$> listDirectory (fp </> "menus")) >>=
+  mns <- (fmap ((fp</>"menu")</>) <$> listDirectory (fp </> "menu")) >>=
          (fmap (Map.fromList . map (\a -> (a ^.mid, a))) . mapM loadMenu)
   maybe (error "Couldn't find root menu in MenuSystem!") return . fmap (MenuSystem mns) $
     mns  ^.at rmID
@@ -140,7 +140,23 @@ loadMenus fp = do
 saveMenus :: FilePath -> MenuSystem -> IO ()
 saveMenus fp ms = do
   createDirectory fp
-  createDirectory $ fp </> "menus"
   TIO.writeFile (fp</>"root") (ms^.topMenu.mid)
+  storeSubMenus fp ms
+
+storeSubMenus :: FilePath -> MenuSystem -> IO ()
+storeSubMenus fp ms = do
+  createDirectory $ fp </> "menu"
   ifor_ (ms^.menuMap) $ \i m ->
     JS.encodeFile ((fp</>"menus")</>(T.unpack i)) m
+
+saveSubgraph :: FilePath -> Text -> MenuSystem -> IO ()
+saveSubgraph graph subname ms = do
+  createDirectory graph
+  storeSubMenus graph ms
+  createDirectory $ graph </> "subgraph"
+  TIO.writeFile ((graph</>"subgraph")</>(T.unpack subname)) (ms^.topMenu.mid)
+
+refSubGraph :: FilePath -> Text -> IO Menu
+refSubGraph graph subname = do
+  mnId <- TIO.readFile ((graph</>"subgraph")</>(T.unpack subname))
+  loadMenu ((graph</>"menu")</>(T.unpack subname))
