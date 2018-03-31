@@ -99,11 +99,11 @@ const menuItemStyles = css`
   }
 
   .left > span {
-    margin-left: 15px;
+    margin-left: 10px;
   }
 
   .right > span {
-    margin-right: 15px;
+    margin-right: 10px;
   }
 
   .spacer {
