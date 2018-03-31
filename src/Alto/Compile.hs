@@ -13,6 +13,7 @@ import qualified Crypto.Hash.SHA256 as SHA256
 import           Crypto.Scrypt (ScryptParams)
 import qualified Crypto.Scrypt as Scrypt
 import qualified Data.ByteString.Base64.URL as B64
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -37,6 +38,9 @@ compileRoot name desc = do
   (rm, (CSt _ mnmp _)) <- desc `runStateT` (CSt compSalt mempty mempty)
   return $ MenuSystem mnmp rm
 
+idBytes :: Int
+idBytes = 128 `div` 8
+
 -- | Generate a (hopefully) unique ID based off the name, pseudo-salted from the root name.
 --   The root derived pseudo salt is expensively generated to make guessing attacks
 --   fairly unreasonable. Truly though this is just to keep the honest honest.
@@ -44,11 +48,12 @@ genTagID :: MonadState CompState m => Text -> m Tag
 genTagID nm = do
   ss <- use salt
   -- If our parts encode the same, we are the same.
-  return . T.init . TE.decodeUtf8 . B64.encode . SHA256.hashlazy .
+  return . T.init . TE.decodeUtf8 . B64.encode . BS.take idBytes .
+    SHA256.hashlazy .
     BSL.fromChunks $ [TE.encodeUtf8 nm, ss]
 
 genMenuID :: MenuM MenuID
-genMenuID = lift $ randomString (StringOpts Base58 (256 `div` 8))
+genMenuID = lift $ randomString (StringOpts Base58 idBytes)
 
 importMenuSystem :: MenuSystem -> MenuM Menu
 importMenuSystem ms = do
