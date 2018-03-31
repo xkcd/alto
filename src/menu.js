@@ -200,6 +200,11 @@ function menu(props) {
       return
     }
 
+    if (loadingIndicator) {
+      loadingIndicator.cancel()
+      loadingIndicator = null
+    }
+
     const oldHighlightedIdx = highlightedIdx
     highlightedIdx = item && item.idx
 
@@ -213,11 +218,6 @@ function menu(props) {
       if (childMenuEl) {
         childMenuEl.parentNode.removeChild(childMenuEl)
         childMenuEl = null
-      }
-
-      if (loadingIndicator) {
-        loadingIndicator.cancel()
-        loadingIndicator = null
       }
 
       const itemBox = itemEl.getBoundingClientRect()
