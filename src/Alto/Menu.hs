@@ -159,4 +159,4 @@ saveSubgraph graph subname ms = do
 refSubGraph :: FilePath -> Text -> IO Menu
 refSubGraph graph subname = do
   mnId <- TIO.readFile ((graph</>"subgraph")</>(T.unpack subname))
-  loadMenu ((graph</>"menu")</>(T.unpack subname))
+  loadMenu $ ((graph</>"menu")</>(T.unpack subname))</>(T.unpack mnId)
