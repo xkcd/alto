@@ -3,9 +3,28 @@ import style from 'dom-css'
 
 const itemBackgroundColor = '#e4e4e4'
 const itemHighlightColor = '#f4f4f4'
+const menuShadow = '0 0 15px rgba(0, 0, 0, .5)'
+const menuTransition = 'opacity .15s ease-out'
+const menuStyle = {
+  position: 'fixed',
+  display: 'block',
+  margin: 0,
+  padding: 0,
+  boxShadow: menuShadow,
+  overflow: 'hidden',
+  transition: menuTransition,
+}
+const itemStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  cursor: 'default',
+  padding: '8px 10px',
+  backgroundColor: itemBackgroundColor,
+  userSelect: 'none',
+}
 
 function menuItem(props) {
-  const {item, itemGen, onSelect, onMouseEnter, onMouseLeave, attach} = props
+  const {item, onSelect, onMouseEnter, onMouseLeave, attach} = props
 
   const textEl = html`
     <span>${item.label}</span>
@@ -23,14 +42,7 @@ function menuItem(props) {
       onmouseleave=${ev => onMouseLeave(item, ev.target)}
     >${textEl}</li>
   `
-  style(el, {
-    display: 'flex',
-    alignItems: 'center',
-    cursor: 'default',
-    padding: '8px 10px',
-    backgroundColor: itemBackgroundColor,
-    userSelect: 'none',
-  })
+  style(el, itemStyle)
 
   if (item.subMenuId) {
     const caretEl = html`<div />`
@@ -79,14 +91,7 @@ function menu(props) {
       ${itemEls}
     </ul>
   `
-  style(el, {
-    position: 'fixed',
-    display: 'block',
-    margin: 0,
-    padding: 0,
-    boxShadow: '0 0 15px rgba(0, 0, 0, .5)',
-    overflow: 'hidden',
-  })
+  style(el, menuStyle)
 
   function handleItemEnter(item, itemEl) {
     updateHighlighted(item, itemEl)
@@ -141,25 +146,16 @@ function menu(props) {
   return el
 }
 
-async function showMenu(props) {
-  const {itemGen, onSelect, id, parentEl, parentBox, attach} = props
-  const items = await itemGen(id)
-
-  // render for size measurement
-  let el = menu({
-    items,
-    itemGen,
-    attach
-  })
+function positionMenu(el, parentBox, attach) {
   style(el, {
     left: -9999,
     top: 0,
   })
-  parentEl.appendChild(el)
+  document.body.appendChild(el)
   const menuBox = el.getBoundingClientRect()
   const menuWidth = Math.floor(menuBox.width)
   const menuHeight = Math.floor(menuBox.height)
-  parentEl.removeChild(el)
+  document.body.removeChild(el)
 
   // measure position and flip attach direction if necessary
   const {innerHeight, innerWidth} = window
@@ -168,7 +164,8 @@ async function showMenu(props) {
   const pos = {}
   const leftUnderHang = parentBox.left - menuWidth - 1
   const rightOverHang = parentBox.right + menuWidth - innerWidth
-  // if there's x under/overhang swap to side with most space
+
+  // if there's x under/overhang swap to side with most space and fill remaining space.
   if (attach.x === 'left' && leftUnderHang < 0 && rightOverHang < -leftUnderHang) {
     childAttach.x = 'right'
   } else if (attach.x === 'right' && rightOverHang > 0 && -leftUnderHang < rightOverHang) {
@@ -182,6 +179,7 @@ async function showMenu(props) {
     pos.maxWidth = innerWidth - pos.left
   }
 
+  // y positioning is easier: when it hits the screen edge offset, possibly filling vertical space.
   if (attach.y === 'bottom') {
     pos.top = parentBox.bottom - menuHeight
     if (pos.top < 0) {
@@ -198,17 +196,43 @@ async function showMenu(props) {
   }
   pos.maxHeight = innerHeight - pos.top
 
-  // render
-  el = menu({
-    items,
-    itemGen,
-    onSelect,
-    attach: childAttach,
-  })
-  style(el, pos)
-  parentEl.appendChild(el)
+  return {pos, childAttach}
+}
 
-  return el
+function showMenu(props) {
+  const {itemGen, onSelect, id, parentEl, parentBox, attach} = props
+
+  let containerEl
+
+  async function loadMenu() {
+    const items = await itemGen(id)
+
+    // render for size measurement
+    let el = menu({
+      items,
+      itemGen,
+      attach
+    })
+    const {pos, childAttach} = positionMenu(el, parentBox, attach)
+
+    // render
+    el = menu({
+      items,
+      itemGen,
+      onSelect,
+      attach: childAttach,
+    })
+    style(el, pos)
+
+    containerEl.appendChild(el)
+  }
+
+  containerEl = html`<div />`
+  parentEl.appendChild(containerEl)
+
+  loadMenu()
+
+  return containerEl
 }
 
 // XXX work around https://github.com/babel/babylon/issues/257
