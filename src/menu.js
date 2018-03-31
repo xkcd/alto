@@ -91,6 +91,14 @@ const menuItemStyles = css`
     user-select: none;
   }
 
+  .highlight {
+    background-color: ${itemHighlightColor};
+  }
+
+  .disabled {
+    opacity: .65;
+  }
+
   .item > span {
     flex: 1;
     overflow: hidden;
@@ -131,21 +139,27 @@ function menuItem(props) {
     }
   }
 
+  const classes = classNames(
+    menuItemStyles.item,
+    {
+      [menuItemStyles[attach.x]]: showArrows,
+      [menuItemStyles.highlight]: isHighlighted,
+      [menuItemStyles.disabled]: item.disabled,
+    }
+  )
+
   const el = html`
     <li
-      class="${classNames(menuItemStyles.item, showArrows && menuItemStyles[attach.x])}"
-      onclick=${() => onSelect(item.menuId, item.idx)}
-      onmouseenter=${ev => onMouseEnter(item, ev.target)}
-      onmouseleave=${ev => onMouseLeave(item, ev.target)}
+      class="${classes}"
+      onclick=${item.disabled ? null : () => onSelect(item.menuId, item.idx)}
+      onmouseenter=${item.disabled ? null : ev => onMouseEnter(item, ev.target)}
+      onmouseleave=${item.disabled ? null : ev => onMouseLeave(item, ev.target)}
     >
       ${preEdgeEl}
       <span>${item.label}</span>
       ${postEdgeEl}
     </li>
   `
-  style(el, {
-    backgroundColor: isHighlighted ? itemHighlightColor : itemBackgroundColor,
-  })
 
   return el
 }
@@ -154,6 +168,7 @@ const menuStyles = css`
   .menu {
     position: fixed;
     overflow: hidden;
+    background-color: ${itemBackgroundColor};
     box-shadow: ${menuShadow};
     transition: ${menuTransition};
   }
