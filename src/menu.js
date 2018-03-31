@@ -96,7 +96,7 @@ const menuItemStyles = css`
   }
 
   .disabled {
-    opacity: .65;
+    opacity: .5;
   }
 
   .item > span {
