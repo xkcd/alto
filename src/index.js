@@ -35,7 +35,7 @@ async function main() {
     menuEl = await showMenu({
       id: null,
       itemGen: id => state.itemGen(id),
-      onSelect: handleSelect,
+      onMenuSelect: handleSelect,
       parentEl: document.body,
       parentBox: {left: pos.x, right: pos.x, top: pos.y},
       attach: {x: 'right', y: 'top'},

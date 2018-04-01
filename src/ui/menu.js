@@ -61,7 +61,7 @@ const styles = css`
 `
 
 export default function menu(props) {
-  const {items, itemGen, onSelect, attach, isScrolling} = props
+  const {items, itemGen, onMenuSelect, attach, isScrolling} = props
   let itemEls
   let childMenuEl
   let hoverButtonEls
@@ -80,7 +80,7 @@ export default function menu(props) {
       itemGen,
       onMouseEnter: handleItemEnter,
       onMouseLeave: handleItemLeave,
-      onSelect,
+      onMenuSelect,
       attach,
     })
   }
@@ -127,11 +127,11 @@ export default function menu(props) {
         loadingIndicator = indicateLoading(() => {
           morph(itemEl, renderItem(item))
         })
-        onSelect(item.menuId, item.entryIdx)
+        onMenuSelect(item.menuId, item.entryIdx)
         childMenuEl = showMenu({
           id: item.subMenuId,
           itemGen,
-          onSelect,
+          onMenuSelect,
           onLoad: loadingIndicator.finished,
           parentBox: itemBox,
           attach,
@@ -252,7 +252,7 @@ function positionMenu(el, parentBox, attach) {
 }
 
 export function showMenu(props) {
-  const {itemGen, onSelect, onLoad, id, parentBox, attach} = props
+  const {itemGen, onMenuSelect, onLoad, id, parentBox, attach} = props
 
   let el
 
@@ -271,7 +271,7 @@ export function showMenu(props) {
     const finalEl = menu({
       items,
       itemGen,
-      onSelect,
+      onMenuSelect,
       attach: childAttach,
       isScrolling,
     })

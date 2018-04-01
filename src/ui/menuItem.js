@@ -63,7 +63,7 @@ const styles = css`
 `
 
 export default function menuItem(props) {
-  const {item, showArrows, isLoading, isHighlighted, onSelect, onMouseEnter, onMouseLeave, attach} = props
+  const {item, showArrows, isLoading, isHighlighted, onMenuSelect, onMouseEnter, onMouseLeave, attach} = props
 
   let preEdgeEl
   let postEdgeEl
@@ -97,7 +97,7 @@ export default function menuItem(props) {
   const el = html`
     <li
       class="${classes.join(' ')}"
-      onclick=${item.disabled ? null : () => onSelect(item.menuId, item.entryIdx)}
+      onclick=${item.disabled ? null : () => onMenuSelect(item.menuId, item.entryIdx)}
       onmouseenter=${item.disabled ? null : ev => onMouseEnter(item, ev.target)}
       onmouseleave=${item.disabled ? null : ev => onMouseLeave(item, ev.target)}
     >
