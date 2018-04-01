@@ -186,7 +186,6 @@ export default function menu(props) {
   }
 
   const classes = [
-    'alto-menu',
     styles.menu,
     isScrolling && styles.scrolling,
   ].filter(x => x)

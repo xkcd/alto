@@ -76,7 +76,7 @@ export default function menuItem(props) {
     }
 
     const edgeSpacer = html`
-      <div class="alto-spacer ${styles.spacer}">
+      <div class="${styles.spacer}">
         ${edgeEl}
       </div>
     `
@@ -96,7 +96,7 @@ export default function menuItem(props) {
 
   const el = html`
     <li
-      class="alto-menuitem ${classes.join(' ')}"
+      class="${classes.join(' ')}"
       onclick=${item.disabled || item.subMenuId ? null : ev => onItemSelect(item, ev.target)}
       onmouseenter=${item.disabled ? null : ev => onMouseEnter(item, ev.target)}
       onmouseleave=${item.disabled ? null : ev => onMouseLeave(item, ev.target)}

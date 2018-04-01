@@ -25,7 +25,7 @@ export default function hoverMenuButton(props) {
   function render() {
     return html`
       <div
-        class="alto-hovermenubutton ${className}"
+        class="${className}"
         onclick=${onTrigger}
         onmouseenter=${handleMouseEnter}
         onmouseleave=${handleMouseLeave}
