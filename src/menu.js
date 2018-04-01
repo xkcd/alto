@@ -1,4 +1,3 @@
-import classNames from 'classnames'
 import html from 'nanohtml'
 import morph from 'nanomorph'
 import style from 'dom-css'
@@ -140,18 +139,16 @@ function menuItem(props) {
     }
   }
 
-  const classes = classNames(
+  const classes = [
     menuItemStyles.item,
-    {
-      [menuItemStyles[attach.x]]: showArrows,
-      [menuItemStyles.highlight]: isHighlighted,
-      [menuItemStyles.disabled]: item.disabled,
-    }
-  )
+    showArrows && menuItemStyles[attach.x],
+    isHighlighted && menuItemStyles.highlight,
+    item.disabled && menuItemStyles.disabled,
+  ].filter(x => x)
 
   const el = html`
     <li
-      class="${classes}"
+      class="${classes.join(' ')}"
       onclick=${item.disabled ? null : () => onSelect(item.menuId, item.entryIdx)}
       onmouseenter=${item.disabled ? null : ev => onMouseEnter(item, ev.target)}
       onmouseleave=${item.disabled ? null : ev => onMouseLeave(item, ev.target)}

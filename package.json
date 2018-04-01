@@ -8,7 +8,6 @@
     "build": "webpack --mode production -p --progress"
   },
   "dependencies": {
-    "classnames": "^2.2.5",
     "nanohtml": "^1.2.2",
     "nanomorph": "^5.1.3",
     "dom-css": "^2.1.0",
