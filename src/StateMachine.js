@@ -1,7 +1,5 @@
 import html from 'nanohtml'
 
-import Client from './client'
-
 export default class StateMachine {
   constructor(client) {
     this.client = client
