@@ -6,7 +6,7 @@ import indicateLoading from './indicate-loading'
 
 const itemBackgroundColor = '#e4e4e4'
 const itemHighlightColor = '#f4f4f4'
-const menuShadow = '0 0 15px rgba(0, 0, 0, .5)'
+const menuShadow = '0 0 10px rgba(0, 0, 0, .45)'
 const menuTransition = 'opacity .15s ease-out'
 const scrollHoverButtonSize = 20
 
