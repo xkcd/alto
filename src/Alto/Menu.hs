@@ -89,7 +89,7 @@ data EntryType =
  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''EntryType
-JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1, JS.sumEncoding = JS.UntaggedValue} ''EntryType
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''EntryType
 
 data MenuEntry =
   MEntry
