@@ -52,6 +52,10 @@ export default class StateMachine {
     let fetches = []
     let data = await this.client.get(id)
     for (const entry of data.entries) {
+      if (!this.evalTagLogic(entry.display)) {
+        continue
+      }
+
       const subMenuId = this.evalSubMenuId(entry.reaction)
       if (!subMenuId) {
         continue
