@@ -145,6 +145,7 @@ const menuItemStyles = css`
     font-family: sans-serif;
     font-size: 11.5pt;
     color: black;
+    border-radius: 2px;
     align-items: center;
     cursor: default;
     padding: 8px 10px;
