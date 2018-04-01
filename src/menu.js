@@ -355,7 +355,7 @@ function menu(props) {
         loadingIndicator = indicateLoading(() => {
           morph(itemEl, renderItem(item))
         })
-        onSelect(item.menuId, item.idx)
+        onSelect(item.menuId, item.entryIdx)
         childMenuEl = showMenu({
           id: item.subMenuId,
           itemGen,
