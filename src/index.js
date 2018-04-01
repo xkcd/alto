@@ -3,7 +3,7 @@ import html from 'nanohtml'
 import {ALTO_ENDPOINT} from './config'
 import Client from './client'
 import StateMachine from './state-machine'
-import showMenu from './menu'
+import {showMenu} from './ui/menu'
 
 async function main() {
   const client = new Client(ALTO_ENDPOINT)
