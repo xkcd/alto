@@ -436,10 +436,10 @@ function positionMenu(el, parentBox, attach) {
   const childAttach = {...attach}
 
   const pos = {}
-  const parentTop = Math.round(parentBox.top)
-  const parentBottom = Math.round(parentBox.bottom)
-  const parentLeft = Math.round(parentBox.left)
-  const parentRight = Math.round(parentBox.right)
+  const parentTop = Math.ceil(parentBox.top)
+  const parentBottom = Math.ceil(parentBox.bottom)
+  const parentLeft = Math.ceil(parentBox.left)
+  const parentRight = Math.ceil(parentBox.right)
   const leftUnderHang = parentLeft - menuWidth
   const rightOverHang = parentRight + menuWidth - innerWidth
 
