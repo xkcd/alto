@@ -19,6 +19,8 @@ const styles = css`
     border-radius: 3px;
     box-shadow: 0 0 10px rgba(0, 0, 0, .45);
     transition: opacity .15s ease-out;
+    text-align: left;
+    font-variant: none;
 
     & > ul {
       margin: 0;
