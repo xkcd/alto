@@ -1,5 +1,6 @@
 {
   "name": "alto-client",
+  "description": "A cloud-based menu system",
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
