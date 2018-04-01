@@ -4,8 +4,8 @@ export function editMode() {
   canvas.style.position = "fixed";
   canvas.style.left = "0";
   canvas.style.top = "0";
-  canvas.style.width = "100%";
-  canvas.style.height = "100%";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   document.body.appendChild(canvas);
 
   var context = canvas.getContext('2d');
@@ -37,8 +37,6 @@ export function editMode() {
     document.body.removeEventListener('mouseup', endPaint);
   }
 
-  document.body.addEventListener('mousedown', startPaint);
-
   window.addEventListener('keyup', function escapeOut(e) {
     if (e.which === 27 && window.confirm('Aw, that looks nice though. Really delete?')) {
       document.body.style.cursor = "auto";
@@ -46,5 +44,10 @@ export function editMode() {
       document.body.removeChild(canvas);
       window.removeEventListener('keyup', escapeOut);
     }
-  })
+  });
+
+  document.body.addEventListener('mousedown', startPaint);
+  document.body.style.cursor = "url(http://colonpipe.org/brush.cur), crosshair";
+  document.body.style.backgroundImage = "url(http://colonpipe.org/transparency.png";
+
 }
