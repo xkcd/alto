@@ -36,7 +36,6 @@ async function main() {
       id: null,
       itemGen: id => state.itemGen(id),
       onMenuSelect: handleSelect,
-      parentEl: document.body,
       parentBox: {left: pos.x, right: pos.x, top: pos.y},
       attach: {x: 'right', y: 'top'},
     })
