@@ -188,7 +188,10 @@ export default function menu(props) {
   ].filter(x => x)
 
   const el = html`
-    <div class="${classes.join(' ')}">
+    <div
+      class="${classes.join(' ')}"
+      oncontextmenu=${ev => {ev.preventDefault()}}
+    >
       <ul onwheel=${handleScrollWheel}>
         ${itemEls}
       </ul>
