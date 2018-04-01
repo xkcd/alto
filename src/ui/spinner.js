@@ -1,6 +1,6 @@
 import html from 'nanohtml'
 
-const styles = css`
+export const styles = css`
   @keyframes spin {
     from {
       transform: rotate(0deg);
@@ -23,7 +23,7 @@ export default function spinner(props) {
   const r = size / 2 - strokeWidth
 
   const el = html`
-    <svg class="alto-spinner ${styles.spinner}" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+    <svg class="${styles.spinner}" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
       <circle
         cx="${size / 2}"
         cy="${size / 2}"

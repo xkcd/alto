@@ -8,7 +8,7 @@ import menuItem from './menuItem'
 
 const scrollHoverButtonSize = 20
 
-const styles = css`
+export const styles = css`
   @import "./colors.less";
 
   .menu {
@@ -186,7 +186,6 @@ export default function menu(props) {
   }
 
   const classes = [
-    'alto-menu',
     styles.menu,
     isScrolling && styles.scrolling,
   ].filter(x => x)

@@ -1,7 +1,7 @@
 import html from 'nanohtml'
 import style from 'dom-css'
 
-const styles = css`
+export const styles = css`
   .arrow {
     width: 0;
     height: 0;
@@ -48,7 +48,7 @@ export default function arrow(props) {
     throw 'invalid direction'
   }
 
-  const el = html`<div class="alto-arrow ${styles.arrow}" />`
+  const el = html`<div class="${styles.arrow}" />`
   style(el, directionStyles[direction])
 
   return el
