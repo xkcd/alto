@@ -16,13 +16,12 @@ export default class StateMachine {
 
   evalTagLogic(whenTree) {
     const evalMap = {
-      'When': x => exec(x.contents), // TODO: remove?
       'Always': () => true,
       'TLAnd': x => x.contents.every(exec),
       'TLOr': x => x.contents.some(exec),
       'TLNot': x => !exec(x.contents),
       'TagSet': x => this.tags.has(x.contents),
-      'TagUnset': x => !this.tags.has(x.contents),  // TODO: remove?
+      'TagUnset': x => !this.tags.has(x.contents),
     }
 
     function exec(x) {
