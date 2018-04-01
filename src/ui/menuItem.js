@@ -16,6 +16,7 @@ const styles = css`
     cursor: default;
     padding: 8px 10px;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
 
     &.highlight {
       background-color: @itemHighlightColor;
