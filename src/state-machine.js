@@ -68,7 +68,6 @@ export default class StateMachine {
       // the root menu is special. find the first displayed submenu of the root.
       for (const entry of rootData.entries) {
         const {display, reaction} = entry
-        console.log(entry, display, this.evalTagLogic(display))
         if (this.evalTagLogic(display)) {
           id = this.evalSubMenuId(reaction)
           break
