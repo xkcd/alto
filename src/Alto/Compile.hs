@@ -110,7 +110,7 @@ ent :: MenuEntry -> EntryM ()
 ent = tell . pure
 
 mnAction :: Menu -> EntryType
-mnAction m = SubMenu (m^.mid) Nothing mempty mempty
+mnAction m = SubMenu mempty (m^.mid) Nothing
 
 andLogic :: TagLogic -> TagLogic -> TagLogic
 andLogic nl Always = nl
@@ -137,11 +137,15 @@ infixl 5 &=
 
 infixl 5 |->
 (|->) :: MenuEntry -> Menu -> MenuEntry
-(|->) e m = e & reaction .~ SubMenu (m ^. mid) Nothing (e ^. reaction.setTags) (e ^. reaction.unsetTags)
+(|->) e m = e & reaction .~ SubMenu (e^.reaction.onAction) (m ^. mid) Nothing
 
 infixl 5 |-=
 (|-=) :: MenuEntry -> Action -> MenuEntry
-(|-=) e a = e & reaction .~ Action (e ^. reaction.setTags) (e ^. reaction.unsetTags) (Just a)
+(|-=) e a = e & reaction .~ Action (e^.reaction.onAction) (Just a)
+
+infixl 5 |-==
+(|-==) :: MenuEntry -> EntryType -> MenuEntry
+(|-==) e a = e & reaction .~ (a&onAction.~(e^.reaction.onAction))
 
 infixl 5 |-//
 (|-//) :: MenuEntry -> Text -> MenuEntry
@@ -154,29 +158,33 @@ infixl 5 |-#
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+
 (|-+) :: MenuEntry -> Tag -> MenuEntry
-(|-+) e t = e & reaction.setTags <>~ (Map.singleton t "")
+(|-+) e t = e & reaction.onAction.setTags <>~ (Map.singleton t "")
 
 -- | Make a MenuEntry sset a number of tags.
 infixl 5 |-+*
 (|-+*) :: MenuEntry -> [Tag] -> MenuEntry
-(|-+*) e t = e & reaction.setTags <>~ (Map.fromList . map (,"") $ t)
+(|-+*) e t = e & reaction.onAction.setTags <>~ (Map.fromList . map (,"") $ t)
 
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+=
 (|-+=) :: MenuEntry -> Tag -> Text -> MenuEntry
-(|-+=) e t v = e & reaction.setTags <>~ (Map.singleton t v)
+(|-+=) e t v = e & reaction.onAction.setTags <>~ (Map.singleton t v)
+
+infixl 5 |-<>
+(|-<>) :: MenuEntry -> TagChange -> MenuEntry
+(|-<>) e tc = e & reaction.onAction <>~ tc
 
 -- | Make a MenuEntry unset a tag.
 infixl 5 |--
 (|--) :: MenuEntry -> Tag -> MenuEntry
-(|--) e t = e & reaction.unsetTags <>~ (Set.singleton t)
+(|--) e t = e & reaction.onAction.unsetTags <>~ (Set.singleton t)
 
 -- | Make a MenuEntry unset a number of tags.
 infixl 5 |--*
 (|--*) :: MenuEntry -> [Tag] -> MenuEntry
-(|--*) e t = e & reaction.unsetTags <>~ (Set.fromList t)
+(|--*) e t = e & reaction.onAction.unsetTags <>~ (Set.fromList t)
 
 -- | Like |-> but generates where it links off the value of a tag.
 infixl 5 |=>
 (|=>) :: MenuEntry -> Text -> Tag -> MenuEntry
-(|=>) e mpre tg = e & reaction .~ SubMenu mpre (Just tg)  (e ^. reaction.setTags) (e ^. reaction.unsetTags)
+(|=>) e mpre tg = e & reaction .~ SubMenu (e^.reaction.onAction) mpre (Just tg)

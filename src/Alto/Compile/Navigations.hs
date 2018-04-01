@@ -25,9 +25,9 @@ trieMenu =
         case LTP.splitPrefix . LTP.addPrefix [fc] $ st of
           (pfx, Nothing, st') -> do
               sbmn <- lift $ go st'
-              ent . MEntry Nothing (T.pack pfx) Always Always $ mnAction sbmn
+              ent . MEntry Nothing (T.pack pfx) Always Always mempty $ mnAction sbmn
           (pfx, Just a, st') -> do
-              ent . MEntry Nothing (T.pack pfx) Always Always $ a
+              ent . MEntry Nothing (T.pack pfx) Always Always mempty $ a
               unless (LTP.null st') $ do
                 breakPre . LTP.addPrefix pfx $ st'
 

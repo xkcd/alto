@@ -63,12 +63,29 @@ data Action =
 makeLenses ''Action
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''Action
 
+data TagChange =
+  TagChange
+  { _setTags :: Map Tag Text
+  , _unsetTags :: Set Tag
+  }
+ deriving (Read, Show, Eq, Ord, Generic)
+
+instance Semigroup TagChange where
+  (<>) (TagChange a1 a2) (TagChange b1 b2) = TagChange (a1 <> b1) (a2 <> b2)
+
+instance Monoid TagChange where
+  mempty = TagChange mempty mempty
+
+makeLenses ''TagChange
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1, JS.sumEncoding = JS.UntaggedValue} ''TagChange
+
 data EntryType =
-   Action { _setTags :: Map Tag Text, _unsetTags :: Set Tag, _act :: Maybe Action }
+   Action { _onAction :: TagChange, _act :: Maybe Action }
    -- ^ When the entry is clicked it does the above
- | SubMenu { _subMenu :: MenuID, _subIdPostfix :: Maybe Tag, _setTags :: Map Tag Text, _unsetTags :: Set Tag }
+ | SubMenu { _onAction :: TagChange, _subMenu :: MenuID, _subIdPostfix :: Maybe Tag }
    -- ^ When the entry is selected, the submenu is displayed
  -- | CallBack SomeHMACedThing
+ | JSCall { _onAction :: TagChange, _jsCall :: Text }
  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''EntryType
@@ -80,6 +97,7 @@ data MenuEntry =
   , _label :: Text
   , _display :: TagLogic
   , _active :: TagLogic
+  , _onLeave :: TagChange
   , _reaction :: EntryType
   }
   deriving (Read, Show, Eq, Ord, Generic)
@@ -88,7 +106,7 @@ makeLenses ''MenuEntry
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''MenuEntry
 
 instance IsString MenuEntry where
-  fromString l = MEntry Nothing (T.pack l) Always Always (Action mempty mempty Nothing)
+  fromString l = MEntry Nothing (T.pack l) Always Always mempty (Action mempty Nothing)
 
 data Menu =
   Menu
