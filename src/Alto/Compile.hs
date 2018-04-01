@@ -72,9 +72,20 @@ importMenuSystem ms = do
   menus <>= (ms ^. menuMap)
   return (ms ^. topMenu)
 
+runEntryM :: EntryM () -> MenuM [MenuEntry]
+runEntryM = execWriterT
+
+updateEntries :: Menu -> EntryM () -> MenuM Menu
+updateEntries m ent = do
+  ents <- runEntryM ent
+  let
+    m' = m & entries <>~ ents
+  updateMenu m'
+  return m'
+
 menu :: EntryM () -> MenuM Menu
 menu ents = do
-  es <- execWriterT ents
+  es <- runEntryM ents
   cid <- genMenuID
   let mn = Menu cid es
   -- Make sure this ID isn't already in use.
