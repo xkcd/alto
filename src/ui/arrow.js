@@ -48,7 +48,7 @@ export default function arrow(props) {
     throw 'invalid direction'
   }
 
-  const el = html`<div class="${styles.arrow}" />`
+  const el = html`<div class="alto-arrow ${styles.arrow}" />`
   style(el, directionStyles[direction])
 
   return el
