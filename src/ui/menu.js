@@ -61,9 +61,9 @@ const styles = css`
 `
 
 export default function menu(props) {
-  const {items, itemGen, onMenuSelect, attach, isScrolling} = props
+  const {items, itemGen, onMenuSelect, onMenuLeave, attach, isScrolling} = props
   let itemEls
-  let childMenuEl
+  let childMenu
   let hoverButtonEls
   let highlightedIdx
   let loadingIndicator
@@ -85,6 +85,14 @@ export default function menu(props) {
     })
   }
 
+  function closeSubMenu() {
+    if (!childMenu) {
+      return
+    }
+    childMenu.closeMenu()
+    childMenu = null
+  }
+
   function handleItemEnter(item, itemEl) {
     updateHighlighted(item, itemEl)
   }
@@ -98,7 +106,7 @@ export default function menu(props) {
       return
     }
 
-    if (!item && childMenuEl) {
+    if (!item && childMenu) {
       return
     }
 
@@ -117,10 +125,7 @@ export default function menu(props) {
     if (itemEl) {
       morph(itemEl, renderItem(item))
 
-      if (childMenuEl) {
-        childMenuEl.parentNode.removeChild(childMenuEl)
-        childMenuEl = null
-      }
+      closeSubMenu()
 
       const itemBox = itemEl.getBoundingClientRect()
       if (item.subMenuId) {
@@ -128,15 +133,15 @@ export default function menu(props) {
           morph(itemEl, renderItem(item))
         })
         onMenuSelect(item.menuId, item.entryIdx)
-        childMenuEl = showMenu({
+        childMenu = showMenu({
           id: item.subMenuId,
           itemGen,
           onMenuSelect,
+          onMenuLeave,
           onLoad: loadingIndicator.finished,
           parentBox: itemBox,
           attach,
         })
-        getParentEl(itemEl).appendChild(childMenuEl)
       }
     }
   }
@@ -189,7 +194,7 @@ export default function menu(props) {
     opacity: items ? 1 : 0,
   })
 
-  return el
+  return {el, closeSubMenu}
 }
 
 function positionMenu(el, parentBox, attach) {
@@ -252,15 +257,16 @@ function positionMenu(el, parentBox, attach) {
 }
 
 export function showMenu(props) {
-  const {itemGen, onMenuSelect, onLoad, id, parentBox, attach} = props
+  const {itemGen, onMenuSelect, onMenuLeave, onLoad, id, parentBox, attach} = props
 
-  let el
+  let menuObj
+  let menuEl
 
   async function loadMenu() {
     const items = await itemGen(id)
 
     // render for size measurement
-    let sizingEl = menu({
+    let {el: sizingEl} = menu({
       items,
       itemGen,
       attach
@@ -268,24 +274,33 @@ export function showMenu(props) {
     const {pos, childAttach, isScrolling} = positionMenu(sizingEl, parentBox, attach)
 
     // render
-    const finalEl = menu({
+    menuObj = menu({
       items,
       itemGen,
       onMenuSelect,
+      onMenuLeave,
       attach: childAttach,
       isScrolling,
     })
-    style(finalEl, pos)
-
-    morph(el, finalEl)
+    style(menuObj.el, pos)
+    morph(menuEl, menuObj.el)
 
     if (onLoad) {
       onLoad()
     }
   }
 
-  el = menu({})
+  function closeMenu() {
+    menuObj.closeSubMenu()
+    document.body.removeChild(menuEl)
+    onMenuLeave(id)
+  }
+
+  menuObj = menu({})
+  menuEl = menuObj.el
+  document.body.appendChild(menuEl)
+
   loadMenu()
 
-  return el
+  return {el: menuEl, closeMenu}
 }

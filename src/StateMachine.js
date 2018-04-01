@@ -154,4 +154,12 @@ export default class StateMachine {
 
     return !reaction.tag === 'SubMenu'
   }
+
+  async handleLeave(menuId) {
+    const {onLeave} = await this.client.get(menuId)
+
+    if (onLeave) {
+      this.updateTags(onLeave)
+    }
+  }
 }

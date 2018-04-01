@@ -12,19 +12,19 @@ async function main() {
   await state.init()
 
   const comicEl = document.querySelector('#comic')
-  let menuEl
+  let menuObj
   let isTouching = false
   let longPressTimeout
 
   function closeMenu() {
-    if (menuEl) {
-      document.body.removeChild(menuEl)
-      menuEl = null
+    if (menuObj) {
+      menuObj.closeMenu()
+      menuObj = null
     }
   }
 
   function closeMenuIfOutside(ev) {
-    if (menuEl && menuEl.contains(ev.target)) {
+    if (menuObj && menuObj.el.contains(ev.target)) {
       return
     }
     closeMenu()
@@ -32,14 +32,14 @@ async function main() {
 
   async function openMenu(pos) {
     closeMenu()
-    menuEl = await showMenu({
+    menuObj = await showMenu({
       id: null,
       itemGen: id => state.itemGen(id),
       onMenuSelect: handleSelect,
+      onMenuLeave: id => state.handleLeave(id),
       parentBox: {left: pos.x, right: pos.x, top: pos.y},
       attach: {x: 'right', y: 'top'},
     })
-    document.body.appendChild(menuEl)
   }
 
   async function handleSelect(menuId, entryIdx) {
