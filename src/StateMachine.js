@@ -56,6 +56,11 @@ export default class StateMachine {
         continue
       }
 
+      if (entry.reaction.subIdPostfix) {
+        // don't prefetch ids containing dynamic tags
+        continue
+      }
+
       const subMenuId = this.evalSubMenuId(entry.reaction)
       if (!subMenuId) {
         continue
