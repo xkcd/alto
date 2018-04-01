@@ -76,11 +76,16 @@ runEntryM :: EntryM () -> MenuM [MenuEntry]
 runEntryM = execWriterT
 
 updateEntries :: Menu -> EntryM () -> MenuM ()
-updateEntries m entry = do
+updateEntries m entry =
+  void $ updateEntries' m entry
+
+updateEntries' :: Menu -> EntryM () -> MenuM Menu
+updateEntries' m entry = do
   ents <- runEntryM entry
   let
     m' = m & entries <>~ ents
   updateMenu m'
+  return m'
 
 menu' :: TagChange -> EntryM () -> MenuM Menu
 menu' exitTC ents = do
