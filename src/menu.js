@@ -17,13 +17,11 @@ function arrow(props) {
       borderTop: `${size}px solid transparent`,
       borderBottom: `${size}px solid transparent`,
       borderLeft: `${size}px solid black`,
-      marginLeft: 8,
     },
     'left': {
       borderTop: `${size}px solid transparent`,
       borderBottom: `${size}px solid transparent`,
       borderRight: `${size}px solid black`,
-      marginRight: 8,
     }
   }
 
@@ -110,11 +108,20 @@ const menuItemStyles = css`
     margin-left: 10px;
   }
 
+  .left .spacer {
+    justify-content: flex-start;
+  }
+
+  .right .spacer {
+    justify-content: flex-end;
+  }
+
   .right > span {
     margin-right: 10px;
   }
 
   .spacer {
+    display: flex;
     width: 15px;
   }
 `
@@ -131,7 +138,12 @@ function menuItem(props) {
     } else if (item.subMenuId) {
       edgeEl = arrow({direction: attach.x})
     }
-    const edgeSpacer = html`<div class="${menuItemStyles.spacer}">${edgeEl}</div>`
+
+    const edgeSpacer = html`
+      <div class="${menuItemStyles.spacer}">
+        ${edgeEl}
+      </div>
+    `
     if (attach.x === 'left') {
       preEdgeEl = edgeSpacer
     } else if (attach.x === 'right') {
