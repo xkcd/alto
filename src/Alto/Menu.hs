@@ -44,6 +44,22 @@ data TagLogic =
  | TLNot TagLogic
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
+data TagChange =
+  TagChange
+  { _setTags :: Map Tag Text
+  , _unsetTags :: Set Tag
+  }
+ deriving (Read, Show, Eq, Ord, Generic)
+
+instance Semigroup TagChange where
+  (<>) (TagChange a1 a2) (TagChange b1 b2) = TagChange (a1 <> b1) (a2 <> b2)
+
+instance Monoid TagChange where
+  mempty = TagChange mempty mempty
+
+makeLenses ''TagChange
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1, JS.sumEncoding = JS.UntaggedValue} ''TagChange
+
 data EmbedSize =
    EFullPage
  | ENative
@@ -62,22 +78,6 @@ data Action =
 
 makeLenses ''Action
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''Action
-
-data TagChange =
-  TagChange
-  { _setTags :: Map Tag Text
-  , _unsetTags :: Set Tag
-  }
- deriving (Read, Show, Eq, Ord, Generic)
-
-instance Semigroup TagChange where
-  (<>) (TagChange a1 a2) (TagChange b1 b2) = TagChange (a1 <> b1) (a2 <> b2)
-
-instance Monoid TagChange where
-  mempty = TagChange mempty mempty
-
-makeLenses ''TagChange
-JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1, JS.sumEncoding = JS.UntaggedValue} ''TagChange
 
 data EntryType =
    Action { _onAction :: TagChange, _act :: Maybe Action }
