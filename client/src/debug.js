@@ -1,4 +1,4 @@
-export const DEBUG = location.hash === '#debug'
+import {DEBUG} from './flags'
 
 export default {
   log(...args) {
