@@ -1,7 +1,7 @@
 import html from 'nanohtml'
 import style from 'dom-css'
 
-const styles = css`
+export const styles = css`
   .arrow {
     width: 0;
     height: 0;

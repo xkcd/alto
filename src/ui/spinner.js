@@ -1,6 +1,6 @@
 import html from 'nanohtml'
 
-const styles = css`
+export const styles = css`
   @keyframes spin {
     from {
       transform: rotate(0deg);

@@ -3,7 +3,7 @@ import html from 'nanohtml'
 import arrow from './arrow'
 import spinner from './spinner'
 
-const styles = css`
+export const styles = css`
   @import "./colors.less";
 
   .item {
