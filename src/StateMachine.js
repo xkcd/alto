@@ -1,5 +1,7 @@
 import html from 'nanohtml'
 
+import debug from './debug'
+
 export default class StateMachine {
   constructor(client) {
     this.client = client
@@ -124,17 +126,24 @@ export default class StateMachine {
 
   updateTags(tagChange) {
     const {setTags, unsetTags} = tagChange
+    let changes = {set: [], deleted: []}
 
     if (setTags) {
       for (const [key, value] of Object.entries(setTags)) {
         this.tags.set(key, value)
+        changes.set.push([key, value])
       }
     }
 
     if (unsetTags) {
       for (const key of unsetTags) {
         this.tags.delete(key)
+        changes.deleted.push(key)
       }
+    }
+
+    if (changes.set.length || changes.deleted.length) {
+      debug.log('tags changed:', changes)
     }
   }
 
