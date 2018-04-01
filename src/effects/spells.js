@@ -18,7 +18,6 @@ export function darkness() {
   s.KhtmlOpacity = 0;
   s.filter = 'alpha(opacity=0)';
   // TODO? this doesn't do anything to the menu
-  // TODO setInterval to change it back
 }
 
 /* grayscale */
@@ -75,16 +74,9 @@ export function conjureAnimals() {
   document.body.appendChild(img);
 }
 
-/* increase contrast */
-export function daylight() {
-	// TODO
-  /* -webkit-filter: contrast(200%); // on the img */
-}
-
-/* change the font to Symbol */
+/* change the font to a symbol font */
 export function symbol() {
-  document.body.style.fontFamily = "wingdings"
-  // TODO are there other things we can use here
+  document.body.style.fontFamily = "Wingdings,Webdings,Symbol,Zapf Dingbats";
   // TODO change the menu font
 }
 
