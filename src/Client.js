@@ -15,7 +15,7 @@ export default class Client {
     }
 
     let path
-    if (id == null) {
+    if (id === null) {
       path = '/root'
     } else {
       path = `/menu/${id}`

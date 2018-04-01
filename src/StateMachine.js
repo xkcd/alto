@@ -8,7 +8,7 @@ export default class StateMachine {
   }
 
   async init() {
-    let root = await this.client.get()
+    let root = await this.client.get(null)
     this.tags = new Map(Object.entries(root.State.Tags))
     this.rootId = root.Menu.id
     this.prefetch(this.rootId, 2)
@@ -66,7 +66,7 @@ export default class StateMachine {
   }
 
   async itemGen(id) {
-    if (id == null) {
+    if (id === null) {
       const rootData = await this.client.get(this.rootId)
 
       // the root menu is special. find the first displayed submenu of the root.
