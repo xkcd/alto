@@ -31,7 +31,11 @@ export default class Client {
     return data
   }
 
-  log(id) {
-    fetch(`${this.baseURL}/visit/${this.sessionId}/${id}?${Date.now()}`).catch(e => {})
+  logEnter(parentId, menuId) {
+    fetch(`${this.baseURL}/enter/${this.sessionId}/${parentId}/${menuId}?${Date.now()}`).catch(e => {})
+  }
+
+  logVisit(menuId, entryIdx) {
+    fetch(`${this.baseURL}/visit/${this.sessionId}/${menuId}/${entryIdx}?${Date.now()}`).catch(e => {})
   }
 }

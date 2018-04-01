@@ -80,7 +80,7 @@ export default function menu(props) {
       itemGen,
       onMouseEnter: handleItemEnter,
       onMouseLeave: handleItemLeave,
-      onMenuSelect,
+      onItemSelect: handleItemSelect,
       attach,
     })
   }
@@ -99,6 +99,10 @@ export default function menu(props) {
 
   function handleItemLeave() {
     updateHighlighted(null, null)
+  }
+
+  function handleItemSelect(item) {
+    onMenuSelect(item.menuId, item.entryIdx)
   }
 
   function updateHighlighted(item, itemEl) {
@@ -132,7 +136,7 @@ export default function menu(props) {
         loadingIndicator = indicateLoading(() => {
           morph(itemEl, renderItem(item))
         })
-        onMenuEnter(item.menuId, item.entryIdx)
+        onMenuEnter(item.menuId, item.entryIdx, item.subMenuId)
         childMenu = showMenu({
           id: item.subMenuId,
           itemGen,

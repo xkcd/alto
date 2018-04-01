@@ -138,7 +138,7 @@ export default class StateMachine {
     }
   }
 
-  async handleEnter(menuId, entryIdx) {
+  async handleEnter(menuId, entryIdx, subMenuId) {
     const {entries} = await this.client.get(menuId)
     const {reaction} = entries[entryIdx]
 
@@ -146,7 +146,7 @@ export default class StateMachine {
       this.updateTags(reaction.onAction)
     }
 
-    this.client.log(menuId)
+    this.client.logEnter(menuId, subMenuId)
   }
 
   async handleSelect(menuId, entryIdx) {
@@ -161,7 +161,7 @@ export default class StateMachine {
       this.performAction(reaction.act)
     }
 
-    this.client.log(menuId)
+    this.client.logVisit(menuId, entryIdx)
   }
 
   async handleLeave(menuId) {
