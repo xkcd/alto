@@ -63,14 +63,25 @@ export default class StateMachine {
 
   async itemGen(id) {
     if (id == null) {
-      id = this.rootId
+      const rootData = await this.client.get(this.rootId)
+
+      // the root menu is special. find the first displayed submenu of the root.
+      for (const entry of rootData.entries) {
+        const {display, reaction} = entry
+        console.log(entry, display, this.evalTagLogic(display))
+        if (this.evalTagLogic(display)) {
+          id = this.evalSubMenuId(reaction)
+          break
+        }
+      }
     }
   
+    const data = await this.client.get(id)
+
     let menuItems = []
-    let data = await this.client.get(id)
     for (let idx = 0; idx < data.entries.length; idx++) {
       const entry = data.entries[idx]
-      const {reaction, display, active} = entry
+      const {display, active, reaction} = entry
 
       if (!this.evalTagLogic(display)) {
         continue
