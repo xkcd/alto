@@ -13,6 +13,7 @@ async function main() {
 
   const comicEl = document.querySelector('#comic')
   let menuEl
+  let isTouching = false
   let longPressTimeout
 
   function closeMenu() {
@@ -55,17 +56,31 @@ async function main() {
 
   comicEl.addEventListener('contextmenu', ev => {
     ev.preventDefault()
-    openMenu({x: ev.clientX, y: ev.clientY})
+    if (!isTouching) {
+      // prevent contextmenu from double-triggering on long press in Chrome.
+      openMenu({x: ev.clientX, y: ev.clientY})
+    }
   })
 
+
+  // we have to implement our own long press detection because iOS Safari
+  // doesn't trigger contextmenu on touch.
   comicEl.addEventListener('touchstart', ev => {
-    ev.preventDefault()
+    isTouching = true
     longPressTimeout = setTimeout(() => {
-      openMenu({x: ev.touches[0].clientX, y: ev.touches[0].clientY})
+      openMenu({
+        x: Math.floor(ev.touches[0].clientX),
+        y: Math.floor(ev.touches[0].clientY),
+      })
     }, 250)
   })
 
+  comicEl.addEventListener('touchmove', () => {
+    clearTimeout(longPressTimeout)
+  })
+
   comicEl.addEventListener('touchend', () => {
+    isTouching = false
     clearTimeout(longPressTimeout)
   })
 }
