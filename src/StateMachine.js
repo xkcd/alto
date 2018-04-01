@@ -118,28 +118,36 @@ export default class StateMachine {
     }
   }
 
+  updateTags(tagChange) {
+    const {setTags, unsetTags} = tagChange
+
+    if (setTags) {
+      for (const [key, value] of Object.entries(setTags)) {
+        this.tags.set(key, value)
+      }
+    }
+
+    if (unsetTags) {
+      for (const key of unsetTags) {
+        this.tags.delete(key)
+      }
+    }
+  }
+
   async handleSelect(menuId, entryIdx) {
     const {entries} = await this.client.get(menuId)
     const {reaction} = entries[entryIdx]
 
     this.client.log(menuId)
 
-    if (reaction.setTags) {
-      for (const [key, value] of Object.entries(reaction.setTags)) {
-        this.tags.set(key, value)
-      }
-    }
-
-    if (reaction.unsetTags) {
-      for (const key of reaction.unsetTags) {
-        this.tags.delete(key)
-      }
+    if (reaction.onAction) {
+      this.updateTags(reaction.onAction)
     }
 
     if (reaction.act) {
       this.performAction(reaction.act)
     }
 
-    return !reaction.subMenu
+    return !reaction.tag === 'SubMenu'
   }
 }
