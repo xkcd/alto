@@ -42,7 +42,7 @@ async function main() {
   }
 
   window.addEventListener('mousedown', ev => {
-    if (menuEl.contains(ev.target)) {
+    if (menuEl && menuEl.contains(ev.target)) {
       return
     }
     closeMenu()
