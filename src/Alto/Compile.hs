@@ -83,16 +83,19 @@ updateEntries m ent = do
   updateMenu m'
   return m'
 
-menu :: EntryM () -> MenuM Menu
-menu ents = do
+menu' :: TagChange -> EntryM () -> MenuM Menu
+menu' exitTC ents = do
   es <- runEntryM ents
   cid <- genMenuID
-  let mn = Menu cid es
+  let mn = Menu cid exitTC es
   -- Make sure this ID isn't already in use.
   omns <- menus <<%= (Map.insert cid mn)
   when (cid `Map.member` omns) $
     error ("The menu "<>(show es)<>" was already in used!")
   return $ mn
+
+menu :: EntryM () -> MenuM Menu
+menu = menu' mempty
 
 updateMenu :: Menu -> MenuM ()
 updateMenu m =

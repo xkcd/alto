@@ -97,7 +97,6 @@ data MenuEntry =
   , _label :: Text
   , _display :: TagLogic
   , _active :: TagLogic
-  , _onLeave :: TagChange
   , _reaction :: EntryType
   }
   deriving (Read, Show, Eq, Ord, Generic)
@@ -106,11 +105,12 @@ makeLenses ''MenuEntry
 JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''MenuEntry
 
 instance IsString MenuEntry where
-  fromString l = MEntry Nothing (T.pack l) Always Always mempty (Action mempty Nothing)
+  fromString l = MEntry Nothing (T.pack l) Always Always (Action mempty Nothing)
 
 data Menu =
   Menu
   { _mid :: MenuID
+  , _onLeave :: TagChange
   , _entries :: [MenuEntry]
   }
   deriving (Read, Show, Eq, Ord, Generic)
