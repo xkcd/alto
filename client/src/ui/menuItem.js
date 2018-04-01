@@ -16,6 +16,7 @@ const styles = css`
     cursor: default;
     padding: 8px 10px;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
 
     &.highlight {
       background-color: @itemHighlightColor;
@@ -62,7 +63,7 @@ const styles = css`
 `
 
 export default function menuItem(props) {
-  const {item, showArrows, isLoading, isHighlighted, onSelect, onMouseEnter, onMouseLeave, attach} = props
+  const {item, showArrows, isLoading, isHighlighted, onItemSelect, onMouseEnter, onMouseLeave, attach} = props
 
   let preEdgeEl
   let postEdgeEl
@@ -96,7 +97,7 @@ export default function menuItem(props) {
   const el = html`
     <li
       class="${classes.join(' ')}"
-      onclick=${item.disabled ? null : () => onSelect(item.menuId, item.entryIdx)}
+      onclick=${item.disabled || item.subMenuId ? null : ev => onItemSelect(item, ev.target)}
       onmouseenter=${item.disabled ? null : ev => onMouseEnter(item, ev.target)}
       onmouseleave=${item.disabled ? null : ev => onMouseLeave(item, ev.target)}
     >

@@ -1,16 +1,17 @@
 import html from 'nanohtml'
 
-import Client from './client'
+import debug from './debug'
 
 export default class StateMachine {
-  constructor(client) {
+  constructor(client, effectMap) {
     this.client = client
+    this.effectMap = effectMap
     this.tags = null
     this.rootId = null
   }
 
   async init() {
-    let root = await this.client.get()
+    let root = await this.client.get(null)
     this.tags = new Map(Object.entries(root.State.Tags))
     this.rootId = root.Menu.id
     this.prefetch(this.rootId, 2)
@@ -37,6 +38,10 @@ export default class StateMachine {
   }
 
   evalSubMenuId(reaction) {
+    if (!reaction.tag === 'SubMenu') {
+      return
+    }
+
     const {subMenu, subIdPostfix} = reaction
     if (subIdPostfix) {
       return subMenu + this.tags.get(subIdPostfix)
@@ -48,6 +53,15 @@ export default class StateMachine {
     let fetches = []
     let data = await this.client.get(id)
     for (const entry of data.entries) {
+      if (!this.evalTagLogic(entry.display)) {
+        continue
+      }
+
+      if (entry.reaction.subIdPostfix) {
+        // don't prefetch ids containing dynamic tags
+        continue
+      }
+
       const subMenuId = this.evalSubMenuId(entry.reaction)
       if (!subMenuId) {
         continue
@@ -64,7 +78,7 @@ export default class StateMachine {
   }
 
   async itemGen(id) {
-    if (id == null) {
+    if (id === null) {
       const rootData = await this.client.get(this.rootId)
 
       // the root menu is special. find the first displayed submenu of the root.
@@ -117,29 +131,70 @@ export default class StateMachine {
       } catch (err) {
         window.open(act.url)
       }
+    } else if (act.tag === 'JSCall') {
+      const effectName = act.tag.jsCall
+      if (!this.effectMap.has(effectName)) {
+        debug.warn('missing effect:', effectName)
+        return
+      }
+      effectMap.get(effectName)()
     }
+  }
+
+  updateTags(tagChange) {
+    const {setTags, unsetTags} = tagChange
+    let changes = {set: [], deleted: []}
+
+    if (setTags) {
+      for (const [key, value] of Object.entries(setTags)) {
+        this.tags.set(key, value)
+        changes.set.push([key, value])
+      }
+    }
+
+    if (unsetTags) {
+      for (const key of unsetTags) {
+        this.tags.delete(key)
+        changes.deleted.push(key)
+      }
+    }
+
+    if (changes.set.length || changes.deleted.length) {
+      debug.log('tags changed:', changes)
+    }
+  }
+
+  async handleEnter(menuId, entryIdx, subMenuId) {
+    const {entries} = await this.client.get(menuId)
+    const {reaction} = entries[entryIdx]
+
+    if (reaction.onAction) {
+      this.updateTags(reaction.onAction)
+    }
+
+    this.client.logEnter(menuId, subMenuId)
   }
 
   async handleSelect(menuId, entryIdx) {
     const {entries} = await this.client.get(menuId)
     const {reaction} = entries[entryIdx]
 
-    if (reaction.setTags) {
-      for (const [key, value] of Object.entries(reaction.setTags)) {
-        this.tags.set(key, value)
-      }
-    }
-
-    if (reaction.unsetTags) {
-      for (const key of reaction.unsetTags) {
-        this.tags.delete(key)
-      }
+    if (reaction.onAction) {
+      this.updateTags(reaction.onAction)
     }
 
     if (reaction.act) {
       this.performAction(reaction.act)
     }
 
-    return !reaction.subMenu
+    this.client.logVisit(menuId, entryIdx)
+  }
+
+  async handleLeave(menuId) {
+    const {onLeave} = await this.client.get(menuId)
+
+    if (onLeave) {
+      this.updateTags(onLeave)
+    }
   }
 }

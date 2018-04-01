@@ -16,8 +16,9 @@ export default {
       {
         test: /\.css$/,
         use: [
-          'style-loader',
+          { loader: 'style-loader', options: { singleton: true } },
           { loader: 'css-loader', options: { modules: true } },
+          'postcss-loader',
           'less-loader',
         ],
       },

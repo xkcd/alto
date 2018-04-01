@@ -1,9 +1,12 @@
 import fetch from 'unfetch'
+import nanoid from 'nanoid/generate'
+import nanoidChars from 'nanoid/url'
 
 export default class Client {
   constructor(baseURL) {
     this.baseURL = baseURL
     this.cache = new Map()
+    this.sessionId = nanoid(nanoidChars.substr(2), 22)
   }
 
   async get(id) {
@@ -12,7 +15,7 @@ export default class Client {
     }
 
     let path
-    if (id == null) {
+    if (id === null) {
       path = '/root'
     } else {
       path = `/menu/${id}`
@@ -26,5 +29,13 @@ export default class Client {
       this.cache.set(data.Menu.id, Promise.resolve(data.Menu))
     }
     return data
+  }
+
+  logEnter(parentId, menuId) {
+    fetch(`${this.baseURL}/enter/${this.sessionId}/${parentId}/${menuId}?${Date.now()}`).catch(e => {})
+  }
+
+  logVisit(menuId, entryIdx) {
+    fetch(`${this.baseURL}/visit/${this.sessionId}/${menuId}/${entryIdx}?${Date.now()}`).catch(e => {})
   }
 }
