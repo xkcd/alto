@@ -127,9 +127,14 @@ export function animateObjects() {
 /* make the screen fuzzy and hard to read */
 export function blur() {
   var s= document.getElementById("comic").childNodes[0].style;
-  s.webkitFilter = "blur(10px)";
+  s.webkitFilter = "blur(5px)";
   document.body.style.textShadow = "0 0 3px #000, 3px 0 3px #000, 0 3px 3px #000, -3px 0 3px #000, 0 -3px 3px #000";
-  // TODO menu blur
+  var menus = document.getElementsByTagName("li");
+  for(i=0; i<menus.length; i++) {
+    menus[i].style.webkitFilter = "blur(3px)";
+    menus[i].style.textShadow = "0 0 3px #000, 3px 0 3px #000, 0 3px 3px #000, -3px 0 3px #000, 0 -3px 3px #000";
+  }
+  // TODO unblurs on mouseover still
 }
 
 /* mirror everything */
