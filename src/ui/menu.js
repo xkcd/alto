@@ -14,6 +14,7 @@ const styles = css`
   .menu {
     position: fixed;
     display: flex;
+    max-width: 250px;
     background-color: @itemBackgroundColor;
     border-radius: 3px;
     box-shadow: 0 0 10px rgba(0, 0, 0, .45);
