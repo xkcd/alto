@@ -57,6 +57,7 @@ data Action =
    ColapseMenu
  | Nav { _url :: Text }
  | Embed { _url :: Text, _size :: EmbedSize }
+ | Download { _url :: Text, _filename :: Text }
  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''Action
