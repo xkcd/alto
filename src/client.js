@@ -1,9 +1,12 @@
 import fetch from 'unfetch'
+import nanoid from 'nanoid/generate'
+import nanoidChars from 'nanoid/url'
 
 export default class Client {
   constructor(baseURL) {
     this.baseURL = baseURL
     this.cache = new Map()
+    this.sessionId = nanoid(nanoidChars.substr(2), 22)
   }
 
   async get(id) {
@@ -26,5 +29,11 @@ export default class Client {
       this.cache.set(data.Menu.id, Promise.resolve(data.Menu))
     }
     return data
+  }
+
+  log(id) {
+    try {
+      fetch(`${this.baseURL}/visit/${this.sessionId}/${id}?${Date.now()}`)
+    } catch (err) {}
   }
 }

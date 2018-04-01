@@ -124,6 +124,8 @@ export default class StateMachine {
     const {entries} = await this.client.get(menuId)
     const {reaction} = entries[entryIdx]
 
+    this.client.log(menuId)
+
     if (reaction.setTags) {
       for (const [key, value] of Object.entries(reaction.setTags)) {
         this.tags.set(key, value)
