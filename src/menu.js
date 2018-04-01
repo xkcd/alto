@@ -5,34 +5,51 @@ import style from 'dom-css'
 import indicateLoading from './indicate-loading'
 
 const itemBackgroundColor = '#e4e4e4'
-const itemHighlightColor = '#f4f4f4'
+const itemHighlightColor = '#5544ff'
 const menuShadow = '0 0 10px rgba(0, 0, 0, .45)'
 const menuTransition = 'opacity .15s ease-out'
 const scrollHoverButtonSize = 20
 
+const arrowStyles = css`
+  .arrow {
+    width: 0;
+    height: 0;
+    opacity: .65;
+    border: 5px solid transparent;
+  }
+
+  .arrow.up {
+    border-bottom: 5px solid black;
+  }
+
+  .arrow.down {
+    border-top: 5px solid black;
+  }
+
+  .arrow.left {
+    border-left: 5px solid black;
+  }
+
+  .arrow.right {
+    border-right: 5px solid black;
+  }
+`
+
 function arrow(props) {
-  const {direction, size = 5} = props
+  const {direction, size = 5, color = 'black'} = props
 
   const directionStyles = {
     'up': {
-      borderLeft: `${size}px solid transparent`,
-      borderRight: `${size}px solid transparent`,
-      borderBottom: `${size}px solid black`,
+      borderBottom: `${size}px solid ${color}`,
     },
     'down': {
-      borderLeft: `${size}px solid transparent`,
-      borderRight: `${size}px solid transparent`,
-      borderTop: `${size}px solid black`,
+      borderTop: `${size}px solid ${color}`,
     },
     'left': {
-      borderTop: `${size}px solid transparent`,
-      borderBottom: `${size}px solid transparent`,
-      borderRight: `${size}px solid black`,
+      borderRight: `${size}px solid ${color}`,
     },
     'right': {
-      borderTop: `${size}px solid transparent`,
-      borderBottom: `${size}px solid transparent`,
-      borderLeft: `${size}px solid black`,
+      borderLeft: `${size}px solid ${color}`,
     },
   }
 
@@ -40,13 +57,8 @@ function arrow(props) {
     throw 'invalid direction'
   }
 
-  const el = html`<div />`
-  style(el, {
-    width: 0,
-    height: 0,
-    opacity: .5,
-    ...directionStyles[direction],
-  })
+  const el = html`<div class="${arrowStyles.arrow}" />`
+  style(el, directionStyles[direction])
 
   return el
 }
@@ -91,27 +103,38 @@ function spinner(props) {
 }
 
 function hoverMenuButton(props) {
-  const {onTrigger, className, children, intervalMs = 10} = props
+  const {direction, onTrigger, className, intervalMs = 10} = props
+
+  let el
   let hoverInterval
+  let isHighlighted = false
 
   function handleMouseEnter(ev) {
     hoverInterval = setInterval(() => onTrigger(ev), intervalMs)
+    isHighlighted = true
+    morph(el, render())
   }
 
   function handleMouseLeave() {
     clearInterval(hoverInterval)
+    isHighlighted = false
+    morph(el, render())
   }
 
-  const el = html`
-    <div
-      class="${className}"
-      onclick=${onTrigger}
-      onmouseenter=${handleMouseEnter}
-      onmouseleave=${handleMouseLeave}
-    >
-      ${children}
-    </div>
-  `
+  function render() {
+    return html`
+      <div
+        class="${className}"
+        onclick=${onTrigger}
+        onmouseenter=${handleMouseEnter}
+        onmouseleave=${handleMouseLeave}
+      >
+        ${arrow({direction, color: isHighlighted ? 'white' : 'black'})}
+      </div>
+    `
+  }
+
+  el = render()
 
   return el
 }
@@ -121,6 +144,7 @@ const menuItemStyles = css`
     display: flex;
     font-family: sans-serif;
     font-size: 11.5pt;
+    color: black;
     align-items: center;
     cursor: default;
     padding: 8px 10px;
@@ -129,6 +153,7 @@ const menuItemStyles = css`
 
   .highlight {
     background-color: ${itemHighlightColor};
+    color: white;
   }
 
   .disabled {
@@ -175,7 +200,7 @@ function menuItem(props) {
     if (isLoading) {
       edgeEl = spinner({})
     } else if (item.subMenuId) {
-      edgeEl = arrow({direction: attach.x})
+      edgeEl = arrow({direction: attach.x, color: isHighlighted ? 'white' : 'black'})
     }
 
     const edgeSpacer = html`
@@ -218,6 +243,7 @@ const menuStyles = css`
     position: fixed;
     display: flex;
     background-color: ${itemBackgroundColor};
+    border-radius: 3px;
     box-shadow: ${menuShadow};
     transition: ${menuTransition};
   }
@@ -363,12 +389,12 @@ function menu(props) {
       hoverMenuButton({
         className: `${menuStyles.scrollButton} ${menuStyles.top}`,
         onTrigger: scrollUp,
-        children: arrow({direction: 'up'}),
+        direction: 'up',
       }),
       hoverMenuButton({
         className: `${menuStyles.scrollButton} ${menuStyles.bottom}`,
         onTrigger: scrollDown,
-        children: arrow({direction: 'down'}),
+        direction: 'down',
       }),
     ]
   }
