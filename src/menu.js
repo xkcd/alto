@@ -119,6 +119,8 @@ function hoverMenuButton(props) {
 const menuItemStyles = css`
   .item {
     display: flex;
+    font-family: sans-serif;
+    font-size: 11.5pt;
     align-items: center;
     cursor: default;
     padding: 8px 10px;
