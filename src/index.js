@@ -26,7 +26,7 @@ async function main() {
     menuEl = await showMenu({
       id: null,
       itemGen: id => state.itemGen(id),
-      onSelect: (id, idx) => state.handleSelect(id, idx),
+      onSelect: handleSelect,
       parentEl: document.body,
       parentBox: {left: ev.clientX, right: ev.clientX, top: ev.clientY},
       attach: {x: 'right', y: 'top'},
@@ -34,7 +34,17 @@ async function main() {
     document.body.appendChild(menuEl)
   }
 
+  async function handleSelect(menuId, entryIdx) {
+    const menuFinished = await state.handleSelect(menuId, entryIdx)
+    if (menuFinished) {
+      closeMenu()
+    }
+  }
+
   window.addEventListener('mousedown', ev => {
+    if (menuEl.contains(ev.target)) {
+      return
+    }
     closeMenu()
   })
 

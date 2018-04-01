@@ -120,6 +120,9 @@ export default class StateMachine {
       if (reaction.act.tag === 'Nav') {
         window.open(reaction.act.url)
       }
+      return true
     }
+
+    return false
   }
 }
