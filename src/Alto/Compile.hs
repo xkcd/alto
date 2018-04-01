@@ -75,13 +75,12 @@ importMenuSystem ms = do
 runEntryM :: EntryM () -> MenuM [MenuEntry]
 runEntryM = execWriterT
 
-updateEntries :: Menu -> EntryM () -> MenuM Menu
-updateEntries m ent = do
-  ents <- runEntryM ent
+updateEntries :: Menu -> EntryM () -> MenuM ()
+updateEntries m entry = do
+  ents <- runEntryM entry
   let
     m' = m & entries <>~ ents
   updateMenu m'
-  return m'
 
 menu' :: TagChange -> EntryM () -> MenuM Menu
 menu' exitTC ents = do

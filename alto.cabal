@@ -24,7 +24,6 @@ library
   exposed-modules:
         Alto.Menu
       , Alto.Compile
-      , Alto.Compile.Maze
       , Alto.Compile.Navigations
       , Alto.Example
       , Alto.Web
