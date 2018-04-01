@@ -35,6 +35,10 @@ export default class StateMachine {
   }
 
   evalSubMenuId(reaction) {
+    if (!reaction.tag === 'SubMenu') {
+      return
+    }
+
     const {subMenu, subIdPostfix} = reaction
     if (subIdPostfix) {
       return subMenu + this.tags.get(subIdPostfix)
