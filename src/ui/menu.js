@@ -312,7 +312,7 @@ export function showMenu(props) {
   menuEl = menuObj.el
   document.body.appendChild(menuEl)
 
-  loadMenu()
+  setTimeout(loadMenu, 0)
 
   return {el: menuEl, closeMenu}
 }
