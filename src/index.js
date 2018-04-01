@@ -62,7 +62,6 @@ async function main() {
     }
   })
 
-
   // we have to implement our own long press detection because iOS Safari
   // doesn't trigger contextmenu on touch.
   comicEl.addEventListener('touchstart', ev => {
