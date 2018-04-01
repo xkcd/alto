@@ -74,6 +74,7 @@ data Action =
  | Nav { _url :: Text }
  | Embed { _url :: Text, _size :: EmbedSize }
  | Download { _url :: Text, _filename :: Text }
+ | JSCall { _jsCall :: Text }
  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''Action
@@ -85,7 +86,6 @@ data EntryType =
  | SubMenu { _onAction :: TagChange, _subMenu :: MenuID, _subIdPostfix :: Maybe Tag }
    -- ^ When the entry is selected, the submenu is displayed
  -- | CallBack SomeHMACedThing
- | JSCall { _onAction :: TagChange, _jsCall :: Text }
  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''EntryType
