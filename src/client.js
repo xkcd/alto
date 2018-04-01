@@ -32,8 +32,6 @@ export default class Client {
   }
 
   log(id) {
-    try {
-      fetch(`${this.baseURL}/visit/${this.sessionId}/${id}?${Date.now()}`)
-    } catch (err) {}
+    fetch(`${this.baseURL}/visit/${this.sessionId}/${id}?${Date.now()}`).catch(e => {})
   }
 }
