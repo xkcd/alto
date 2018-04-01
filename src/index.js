@@ -13,6 +13,7 @@ async function main() {
 
   const comicEl = document.querySelector('#comic')
   let menuEl
+  let longPressTimeout
 
   function closeMenu() {
     if (menuEl) {
@@ -21,14 +22,21 @@ async function main() {
     }
   }
 
-  async function openMenu(ev) {
+  function closeMenuIfOutside(ev) {
+    if (menuEl && menuEl.contains(ev.target)) {
+      return
+    }
+    closeMenu()
+  }
+
+  async function openMenu(pos) {
     closeMenu()
     menuEl = await showMenu({
       id: null,
       itemGen: id => state.itemGen(id),
       onSelect: handleSelect,
       parentEl: document.body,
-      parentBox: {left: ev.clientX, right: ev.clientX, top: ev.clientY},
+      parentBox: {left: pos.x, right: pos.x, top: pos.y},
       attach: {x: 'right', y: 'top'},
     })
     document.body.appendChild(menuEl)
@@ -41,16 +49,24 @@ async function main() {
     }
   }
 
-  window.addEventListener('mousedown', ev => {
-    if (menuEl && menuEl.contains(ev.target)) {
-      return
-    }
-    closeMenu()
-  })
+  window.addEventListener('mousedown', closeMenuIfOutside)
+
+  window.addEventListener('touchstart', closeMenuIfOutside)
 
   comicEl.addEventListener('contextmenu', ev => {
     ev.preventDefault()
-    openMenu(ev)
+    openMenu({x: ev.clientX, y: ev.clientY})
+  })
+
+  comicEl.addEventListener('touchstart', ev => {
+    ev.preventDefault()
+    longPressTimeout = setTimeout(() => {
+      openMenu({x: ev.touches[0].clientX, y: ev.touches[0].clientY})
+    }, 500)
+  })
+
+  comicEl.addEventListener('touchend', () => {
+    clearTimeout(longPressTimeout)
   })
 }
 
