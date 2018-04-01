@@ -132,12 +132,12 @@ export default class StateMachine {
         window.open(act.url)
       }
     } else if (act.tag === 'JSCall') {
-      const effectName = act.tag.jsCall
+      const effectName = act.jsCall
       if (!this.effectMap.has(effectName)) {
         debug.warn('missing effect:', effectName)
         return
       }
-      effectMap.get(effectName)()
+      this.effectMap.get(effectName)()
     }
   }
 
