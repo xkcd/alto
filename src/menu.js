@@ -103,6 +103,10 @@ const menuItemStyles = css`
     flex: 1;
   }
 
+  .item.disabled > span {
+    text-shadow: 0 1px white;
+  }
+
   .left > span {
     margin-left: 10px;
   }
