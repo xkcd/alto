@@ -1,0 +1,8 @@
+{
+  "presets": ["env"],
+  "plugins": [
+    "nanohtml",
+    "transform-object-rest-spread",
+    "transform-runtime"
+  ]
+}
