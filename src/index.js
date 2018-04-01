@@ -62,7 +62,7 @@ async function main() {
     ev.preventDefault()
     longPressTimeout = setTimeout(() => {
       openMenu({x: ev.touches[0].clientX, y: ev.touches[0].clientY})
-    }, 500)
+    }, 250)
   })
 
   comicEl.addEventListener('touchend', () => {
