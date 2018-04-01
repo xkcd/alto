@@ -1,6 +1,11 @@
 /* themes */
 export function darkTheme () {
-  // TODO
+  document.body.style.background = "#000";
+  document.body.style.color = "#fff";
+  var s= document.getElementById("comic").childNodes[0].style;
+  s.webkitFilter = "invert(1)";
+  s.filter = "invert(1)";
+  // TODO menu colors
 }
 
 /* make screen black */
