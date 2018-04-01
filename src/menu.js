@@ -467,7 +467,7 @@ function positionMenu(el, parentBox, attach) {
       childAttach.y = 'bottom'
     }
   }
-  pos.maxHeight = innerHeight - pos.top
+  pos.maxHeight = Math.floor(innerHeight - pos.top)
 
   const isScrolling = menuHeight > pos.maxHeight
 
