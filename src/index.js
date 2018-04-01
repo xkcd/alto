@@ -1,8 +1,8 @@
 import html from 'nanohtml'
 
 import {ALTO_ENDPOINT} from './config'
-import Client from './client'
-import StateMachine from './state-machine'
+import Client from './Client'
+import StateMachine from './StateMachine'
 import {showMenu} from './ui/menu'
 
 async function main() {
