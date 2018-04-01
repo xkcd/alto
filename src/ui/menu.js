@@ -211,10 +211,7 @@ function positionMenu(el, parentBox, attach) {
     top: 0,
   })
   document.body.appendChild(el)
-  const menuBox = el.getBoundingClientRect()
-  const menuWidth = Math.ceil(menuBox.width)
-  const menuHeight = Math.ceil(menuBox.height)
-  document.body.removeChild(el)
+  const menuWidth = Math.ceil(el.getBoundingClientRect().width)
 
   // measure position and flip attach direction if necessary
   const {innerHeight, innerWidth} = window
@@ -241,6 +238,11 @@ function positionMenu(el, parentBox, attach) {
     pos.left = parentRight
     pos.width = Math.min(menuWidth, innerWidth - pos.left)
   }
+
+  // width affects text wrapping which affects height, so we do this now.
+  style(el, pos)
+  const menuHeight = Math.ceil(el.getBoundingClientRect().height)
+  document.body.removeChild(el)
 
   // y positioning is easier: when it hits the screen edge offset, possibly filling vertical space.
   if (attach.y === 'bottom') {
