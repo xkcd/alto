@@ -1,7 +1,7 @@
 /* themes */
 export function darkTheme () {
   document.body.style.background = "#000";
-  document.body.style.color = "#fff";
+  document.body.style.color = "darkred";
   var s= document.getElementById("comic").childNodes[0].style;
   s.webkitFilter = "invert(1)";
   s.filter = "invert(1)";
@@ -77,7 +77,11 @@ export function conjureAnimals() {
 /* change the font to a symbol font */
 export function symbol() {
   document.body.style.fontFamily = "Wingdings,Webdings,Symbol,Zapf Dingbats";
-  // TODO change the menu font
+  var menus = document.getElementsByTagName("li");
+  for(i=0; i<menus.length; i++) {
+    menus[i].style.fontFamily = "Wingdings,Webdings,Symbol,Zapf Dingbats";
+  }
+  // TODO this still changes back almost immediately / on hover
 }
 
 /* fill the screen with an acid pattern */
