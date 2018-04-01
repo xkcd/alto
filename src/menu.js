@@ -435,11 +435,11 @@ function positionMenu(el, parentBox, attach) {
   const childAttach = {...attach}
 
   const pos = {}
-  const parentTop = Math.floor(parentBox.top)
+  const parentTop = Math.ceil(parentBox.top)
   const parentBottom = Math.ceil(parentBox.bottom)
-  const parentLeft = Math.floor(parentBox.left)
+  const parentLeft = Math.ceil(parentBox.left)
   const parentRight = Math.ceil(parentBox.right)
-  const leftUnderHang = parentLeft - menuWidth - 1
+  const leftUnderHang = parentLeft - menuWidth
   const rightOverHang = parentRight + menuWidth - innerWidth
 
   // if there's x under/overhang swap to side with most space and fill remaining space.
@@ -450,10 +450,10 @@ function positionMenu(el, parentBox, attach) {
   }
   if (childAttach.x === 'left') {
     pos.left = Math.max(0, leftUnderHang)
-    pos.maxWidth = parentLeft - pos.left
+    pos.width = Math.min(menuWidth, parentLeft - pos.left)
   } else if (childAttach.x === 'right') {
     pos.left = parentRight
-    pos.maxWidth = innerWidth - pos.left
+    pos.width = Math.min(menuWidth, innerWidth - pos.left)
   }
 
   // y positioning is easier: when it hits the screen edge offset, possibly filling vertical space.
@@ -471,7 +471,7 @@ function positionMenu(el, parentBox, attach) {
       childAttach.y = 'bottom'
     }
   }
-  pos.maxHeight = innerHeight - pos.top
+  pos.height = Math.min(menuHeight, innerHeight - pos.top)
 
   const isScrolling = menuHeight > pos.maxHeight
 
