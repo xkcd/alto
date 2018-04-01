@@ -6,5 +6,12 @@ export default {
       return
     }
     console.log(...args)
+  },
+
+  warn(...args) {
+    if (!DEBUG) {
+      return
+    }
+    console.warn(...args)
   }
 }

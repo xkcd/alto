@@ -3,8 +3,9 @@ import html from 'nanohtml'
 import debug from './debug'
 
 export default class StateMachine {
-  constructor(client) {
+  constructor(client, effectMap) {
     this.client = client
+    this.effectMap = effectMap
     this.tags = null
     this.rootId = null
   }
@@ -130,6 +131,13 @@ export default class StateMachine {
       } catch (err) {
         window.open(act.url)
       }
+    } else if (act.tag === 'JSCall') {
+      const effectName = act.tag.jsCall
+      if (!this.effectMap.has(effectName)) {
+        debug.warn('missing effect:', effectName)
+        return
+      }
+      effectMap.get(effectName)()
     }
   }
 
