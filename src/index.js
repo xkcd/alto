@@ -11,6 +11,7 @@ async function main() {
 
   await state.init()
 
+  const comicEl = document.querySelector('#comic')
   let menuEl
 
   function closeMenu() {
@@ -33,13 +34,13 @@ async function main() {
     document.body.appendChild(menuEl)
   }
 
-  document.querySelector('#comic').addEventListener('contextmenu', ev => {
-    ev.preventDefault()
-    openMenu(ev)
-  })
-
   window.addEventListener('mousedown', ev => {
     closeMenu()
+  })
+
+  comicEl.addEventListener('contextmenu', ev => {
+    ev.preventDefault()
+    openMenu(ev)
   })
 }
 
