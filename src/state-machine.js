@@ -1,3 +1,5 @@
+import html from 'nanohtml'
+
 import Client from './client'
 
 export default class StateMachine {
@@ -100,6 +102,24 @@ export default class StateMachine {
     return menuItems
   }
 
+  performAction(act) {
+    if (act.tag === 'Nav') {
+      window.open(act.url)
+    } else if (act.tag === 'Download') {
+      try {
+        const a = html`
+          <a
+            href="${act.url}"
+            download="${act.filename}"
+          />
+        `
+        a.click()
+      } catch (err) {
+        window.open(act.url)
+      }
+    }
+  }
+
   async handleSelect(menuId, entryIdx) {
     const {entries} = await this.client.get(menuId)
     const {reaction} = entries[entryIdx]
@@ -117,9 +137,7 @@ export default class StateMachine {
     }
 
     if (reaction.act) {
-      if (reaction.act.tag === 'Nav') {
-        window.open(reaction.act.url)
-      }
+      this.performAction(reaction.act)
     }
 
     return !reaction.subMenu
