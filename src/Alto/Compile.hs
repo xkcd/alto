@@ -147,6 +147,10 @@ infixl 5 |-//
 (|-//) :: MenuEntry -> Text -> MenuEntry
 (|-//) e u = e |-= (Nav u)
 
+infixl 5 |-#
+(|-#) :: MenuEntry -> Text -> EmbedSize -> MenuEntry
+(|-#) e u es = e |-= (Embed u es)
+
 -- | Make a MenuEntry set a tag.
 infixl 5 |-+
 (|-+) :: MenuEntry -> Tag -> MenuEntry

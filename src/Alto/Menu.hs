@@ -44,9 +44,19 @@ data TagLogic =
  | TLNot TagLogic
  deriving (Read, Show, Eq, Ord, Generic, ToJSON, FromJSON)
 
+data EmbedSize =
+   EFullPage
+ | ENative
+ | ESize { _x :: Int, _y :: Int }
+ deriving (Read, Show, Eq, Ord, Generic)
+
+makeLenses ''EmbedSize
+JS.deriveJSON JS.defaultOptions{JS.fieldLabelModifier = drop 1} ''EmbedSize
+
 data Action =
    ColapseMenu
  | Nav { _url :: Text }
+ | Embed { _url :: Text, _size :: EmbedSize }
  deriving (Read, Show, Eq, Ord, Generic)
 
 makeLenses ''Action
