@@ -426,8 +426,8 @@ function positionMenu(el, parentBox, attach) {
   })
   document.body.appendChild(el)
   const menuBox = el.getBoundingClientRect()
-  const menuWidth = Math.floor(menuBox.width)
-  const menuHeight = Math.floor(menuBox.height)
+  const menuWidth = Math.ceil(menuBox.width)
+  const menuHeight = Math.ceil(menuBox.height)
   document.body.removeChild(el)
 
   // measure position and flip attach direction if necessary
@@ -435,8 +435,12 @@ function positionMenu(el, parentBox, attach) {
   const childAttach = {...attach}
 
   const pos = {}
-  const leftUnderHang = parentBox.left - menuWidth - 1
-  const rightOverHang = parentBox.right + menuWidth - innerWidth
+  const parentTop = Math.floor(parentBox.top)
+  const parentBottom = Math.ceil(parentBox.bottom)
+  const parentLeft = Math.floor(parentBox.left)
+  const parentRight = Math.ceil(parentBox.right)
+  const leftUnderHang = parentLeft - menuWidth - 1
+  const rightOverHang = parentRight + menuWidth - innerWidth
 
   // if there's x under/overhang swap to side with most space and fill remaining space.
   if (attach.x === 'left' && leftUnderHang < 0 && rightOverHang < -leftUnderHang) {
@@ -446,28 +450,28 @@ function positionMenu(el, parentBox, attach) {
   }
   if (childAttach.x === 'left') {
     pos.left = Math.max(0, leftUnderHang)
-    pos.maxWidth = parentBox.left - pos.left
+    pos.maxWidth = parentLeft - pos.left
   } else if (childAttach.x === 'right') {
-    pos.left = parentBox.right
+    pos.left = parentRight
     pos.maxWidth = innerWidth - pos.left
   }
 
   // y positioning is easier: when it hits the screen edge offset, possibly filling vertical space.
   if (attach.y === 'bottom') {
-    pos.top = parentBox.bottom - menuHeight
+    pos.top = parentBottom - menuHeight
     if (pos.top < 0) {
       pos.top = 0
       childAttach.y = 'top'
     }
   } else if (attach.y === 'top') {
-    pos.top = parentBox.top
-    const overHang = parentBox.top + menuHeight - innerHeight
+    pos.top = parentTop
+    const overHang = parentTop + menuHeight - innerHeight
     if (overHang > 0) {
       pos.top = Math.max(0, pos.top - overHang)
       childAttach.y = 'bottom'
     }
   }
-  pos.maxHeight = Math.floor(innerHeight - pos.top)
+  pos.maxHeight = innerHeight - pos.top
 
   const isScrolling = menuHeight > pos.maxHeight
 
