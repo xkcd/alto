@@ -61,7 +61,7 @@ const styles = css`
 `
 
 export default function menu(props) {
-  const {items, itemGen, onMenuSelect, onMenuLeave, attach, isScrolling} = props
+  const {items, itemGen, onMenuSelect, onMenuEnter, onMenuLeave, attach, isScrolling} = props
   let itemEls
   let childMenu
   let hoverButtonEls
@@ -132,11 +132,12 @@ export default function menu(props) {
         loadingIndicator = indicateLoading(() => {
           morph(itemEl, renderItem(item))
         })
-        onMenuSelect(item.menuId, item.entryIdx)
+        onMenuEnter(item.menuId, item.entryIdx)
         childMenu = showMenu({
           id: item.subMenuId,
           itemGen,
           onMenuSelect,
+          onMenuEnter,
           onMenuLeave,
           onLoad: loadingIndicator.finished,
           parentBox: itemBox,
@@ -257,7 +258,7 @@ function positionMenu(el, parentBox, attach) {
 }
 
 export function showMenu(props) {
-  const {itemGen, onMenuSelect, onMenuLeave, onLoad, id, parentBox, attach} = props
+  const {itemGen, onMenuSelect, onMenuEnter, onMenuLeave, onLoad, id, parentBox, attach} = props
 
   let menuObj
   let menuEl
@@ -278,6 +279,7 @@ export function showMenu(props) {
       items,
       itemGen,
       onMenuSelect,
+      onMenuEnter,
       onMenuLeave,
       attach: childAttach,
       isScrolling,
@@ -303,4 +305,76 @@ export function showMenu(props) {
   loadMenu()
 
   return {el: menuEl, closeMenu}
+}
+
+export function attachMenuTo(props) {
+  const {triggerEl, menuProps, id, itemGen, onMenuSelect, onMenuEnter, onMenuLeave} = props
+  let menuObj
+  let isTouching = false
+  let longPressTimeout
+
+  function closeMenu() {
+    if (menuObj) {
+      menuObj.closeMenu()
+      menuObj = null
+    }
+  }
+
+  function closeMenuIfOutside(ev) {
+    if (menuObj && ev.target.closest('.' + styles.menu)) {
+      return
+    }
+    closeMenu()
+  }
+
+  function handleMenuSelect(menuId, entryIdx) {
+    closeMenu()
+    onMenuSelect(menuId, entryIdx)
+  }
+
+  async function openMenu(pos) {
+    closeMenu()
+    menuObj = await showMenu({
+      id,
+      itemGen,
+      onMenuSelect: handleMenuSelect,
+      onMenuEnter,
+      onMenuLeave,
+      parentBox: {left: pos.x, right: pos.x, top: pos.y},
+      attach: {x: 'right', y: 'top'},
+    })
+  }
+
+  window.addEventListener('mousedown', closeMenuIfOutside)
+
+  window.addEventListener('touchstart', closeMenuIfOutside)
+
+  triggerEl.addEventListener('contextmenu', ev => {
+    ev.preventDefault()
+    if (!isTouching) {
+      // prevent contextmenu from double-triggering on long press in Chrome.
+      openMenu({x: ev.clientX, y: ev.clientY})
+    }
+  })
+
+  // we have to implement our own long press detection because iOS Safari
+  // doesn't trigger contextmenu on touch.
+  triggerEl.addEventListener('touchstart', ev => {
+    isTouching = true
+    longPressTimeout = setTimeout(() => {
+      openMenu({
+        x: Math.floor(ev.touches[0].clientX),
+        y: Math.floor(ev.touches[0].clientY),
+      })
+    }, 250)
+  })
+
+  triggerEl.addEventListener('touchmove', () => {
+    clearTimeout(longPressTimeout)
+  })
+
+  triggerEl.addEventListener('touchend', () => {
+    isTouching = false
+    clearTimeout(longPressTimeout)
+  })
 }

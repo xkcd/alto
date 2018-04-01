@@ -97,7 +97,7 @@ export default function menuItem(props) {
   const el = html`
     <li
       class="${classes.join(' ')}"
-      onclick=${item.disabled ? null : () => onMenuSelect(item.menuId, item.entryIdx)}
+      onclick=${item.disabled || item.subMenuId ? null : () => onMenuSelect(item.menuId, item.entryIdx)}
       onmouseenter=${item.disabled ? null : ev => onMouseEnter(item, ev.target)}
       onmouseleave=${item.disabled ? null : ev => onMouseLeave(item, ev.target)}
     >

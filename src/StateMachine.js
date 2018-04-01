@@ -138,11 +138,20 @@ export default class StateMachine {
     }
   }
 
-  async handleSelect(menuId, entryIdx) {
+  async handleEnter(menuId, entryIdx) {
     const {entries} = await this.client.get(menuId)
     const {reaction} = entries[entryIdx]
 
+    if (reaction.onAction) {
+      this.updateTags(reaction.onAction)
+    }
+
     this.client.log(menuId)
+  }
+
+  async handleSelect(menuId, entryIdx) {
+    const {entries} = await this.client.get(menuId)
+    const {reaction} = entries[entryIdx]
 
     if (reaction.onAction) {
       this.updateTags(reaction.onAction)
@@ -152,7 +161,7 @@ export default class StateMachine {
       this.performAction(reaction.act)
     }
 
-    return !reaction.tag === 'SubMenu'
+    this.client.log(menuId)
   }
 
   async handleLeave(menuId) {
