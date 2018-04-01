@@ -8,21 +8,32 @@ const itemBackgroundColor = '#e4e4e4'
 const itemHighlightColor = '#f4f4f4'
 const menuShadow = '0 0 15px rgba(0, 0, 0, .5)'
 const menuTransition = 'opacity .15s ease-out'
+const scrollHoverButtonSize = 20
 
 function arrow(props) {
   const {direction, size = 5} = props
 
   const directionStyles = {
-    'right': {
-      borderTop: `${size}px solid transparent`,
-      borderBottom: `${size}px solid transparent`,
-      borderLeft: `${size}px solid black`,
+    'up': {
+      borderLeft: `${size}px solid transparent`,
+      borderRight: `${size}px solid transparent`,
+      borderBottom: `${size}px solid black`,
+    },
+    'down': {
+      borderLeft: `${size}px solid transparent`,
+      borderRight: `${size}px solid transparent`,
+      borderTop: `${size}px solid black`,
     },
     'left': {
       borderTop: `${size}px solid transparent`,
       borderBottom: `${size}px solid transparent`,
       borderRight: `${size}px solid black`,
-    }
+    },
+    'right': {
+      borderTop: `${size}px solid transparent`,
+      borderBottom: `${size}px solid transparent`,
+      borderLeft: `${size}px solid black`,
+    },
   }
 
   if (!directionStyles.hasOwnProperty(direction)) {
@@ -76,6 +87,32 @@ function spinner(props) {
       />
     </svg>
   `
+  return el
+}
+
+function hoverMenuButton(props) {
+  const {onTrigger, className, children, intervalMs = 10} = props
+  let hoverInterval
+
+  function handleMouseEnter(ev) {
+    hoverInterval = setInterval(() => onTrigger(ev), intervalMs)
+  }
+
+  function handleMouseLeave() {
+    clearInterval(hoverInterval)
+  }
+
+  const el = html`
+    <div
+      class="${className}"
+      onclick=${onTrigger}
+      onmouseenter=${handleMouseEnter}
+      onmouseleave=${handleMouseLeave}
+    >
+      ${children}
+    </div>
+  `
+
   return el
 }
 
@@ -177,7 +214,7 @@ function menuItem(props) {
 const menuStyles = css`
   .menu {
     position: fixed;
-    overflow: hidden;
+    display: flex;
     background-color: ${itemBackgroundColor};
     box-shadow: ${menuShadow};
     transition: ${menuTransition};
@@ -186,15 +223,51 @@ const menuStyles = css`
   .menu > ul {
     margin: 0;
     padding: 0;
+    overflow: hidden;
+  }
+
+  .menu.scrolling > ul {
+    margin: ${scrollHoverButtonSize}px 0;
+  }
+
+  .scrollButton {
+    display: flex;
+    height: ${scrollHoverButtonSize}px;
+    align-items: center;
+    justify-content: center;
+    background-color: ${itemBackgroundColor};
+  }
+
+  .scrollButton:hover {
+    background-color: ${itemHighlightColor};
+  }
+
+  .scrollButton.top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    border-bottom: 1px ridge rgba(0, 0, 0, .2);
+  }
+
+  .scrollButton.bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px groove rgba(0, 0, 0, .2);
   }
 `
 
 function menu(props) {
-  const {items, itemGen, onSelect, attach} = props
+  const {items, itemGen, onSelect, attach, isScrolling} = props
   let itemEls
   let childMenuEl
+  let hoverButtonEls
   let highlightedIdx
   let loadingIndicator
+
+  const getParentEl = el => el.closest('.' + menuStyles.menu)
 
   function renderItem(item) {
     const isHighlighted = item.idx === highlightedIdx
@@ -262,20 +335,53 @@ function menu(props) {
           parentBox: itemBox,
           attach,
         })
-        itemEl.parentNode.parentNode.appendChild(childMenuEl)
+        getParentEl(itemEl).appendChild(childMenuEl)
       }
     }
+  }
+
+  function handleScrollWheel(ev) {
+    ev.currentTarget.scrollTop += ev.deltaY
+  }
+
+  function scrollUp(ev) {
+    getParentEl(ev.target).querySelector('ul').scrollTop -= 6
+  }
+
+  function scrollDown(ev) {
+    getParentEl(ev.target).querySelector('ul').scrollTop += 6
   }
 
   if (items) {
     itemEls = items.map(renderItem)
   }
 
+  if (isScrolling) {
+    hoverButtonEls = [
+      hoverMenuButton({
+        className: `${menuStyles.scrollButton} ${menuStyles.top}`,
+        onTrigger: scrollUp,
+        children: arrow({direction: 'up'}),
+      }),
+      hoverMenuButton({
+        className: `${menuStyles.scrollButton} ${menuStyles.bottom}`,
+        onTrigger: scrollDown,
+        children: arrow({direction: 'down'}),
+      }),
+    ]
+  }
+
+  const classes = [
+    menuStyles.menu,
+    isScrolling && menuStyles.scrolling,
+  ].filter(x => x)
+
   const el = html`
-    <div class="${menuStyles.menu}">
-      <ul>
+    <div class="${classes.join(' ')}">
+      <ul onwheel=${handleScrollWheel}>
         ${itemEls}
       </ul>
+      ${hoverButtonEls}
     </div>
   `
   style(el, {
@@ -335,7 +441,9 @@ function positionMenu(el, parentBox, attach) {
   }
   pos.maxHeight = innerHeight - pos.top
 
-  return {pos, childAttach}
+  const isScrolling = menuHeight > pos.maxHeight
+
+  return {pos, childAttach, isScrolling}
 }
 
 function showMenu(props) {
@@ -352,7 +460,7 @@ function showMenu(props) {
       itemGen,
       attach
     })
-    const {pos, childAttach} = positionMenu(sizingEl, parentBox, attach)
+    const {pos, childAttach, isScrolling} = positionMenu(sizingEl, parentBox, attach)
 
     // render
     const finalEl = menu({
@@ -360,6 +468,7 @@ function showMenu(props) {
       itemGen,
       onSelect,
       attach: childAttach,
+      isScrolling,
     })
     style(finalEl, pos)
 
