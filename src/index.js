@@ -33,12 +33,12 @@ async function main() {
     document.body.appendChild(menuEl)
   }
 
-  window.addEventListener('contextmenu', ev => {
+  document.querySelector('#comic').addEventListener('contextmenu', ev => {
     ev.preventDefault()
     openMenu(ev)
   })
 
-  window.addEventListener('click', ev => {
+  window.addEventListener('mousedown', ev => {
     closeMenu()
   })
 }
