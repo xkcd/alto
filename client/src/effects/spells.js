@@ -28,6 +28,32 @@ export function darkVision() {
   // TODO grayscale the menu as well
 }
 
+/* explosion */
+function fireball() {
+  var reds = ["#ff0000", "#ff0000", "#ff0000", "#ff0000", "#ee0000", "#ee0000", "#dd0000", "#cc0000", "#bb0000", "#aa0000", "#990000", "#880000", "#770000", "#660000", "#550000", "#440000", "#330000", "#220000", "#110000", "#000", "#000" ];
+  var timesRun = 0;
+  var s= document.getElementById("comic").childNodes[0].style;
+  s.opacity = 0.25;
+  s.MozOpacity = 0.25;
+  s.KhtmlOpacity = 0.25;
+  s.filter = 'alpha(opacity=0.25)';
+  document.body.style.background = reds[0];
+  var timer = setInterval(function() {
+    if ( timesRun <= reds.length ) {
+      document.body.style.background = reds[timesRun];
+      timesRun++;
+    }
+    else {
+      document.body.style.background = "#fff";
+      s.opacity = 1;
+      s.MozOpacity = 1;
+      s.KhtmlOpacity = 1;
+      s.filter = 'alpha(opacity=1)';
+      clearInterval(timer);
+    }
+  }, 100);
+}
+
 /* increase contrast */
 export function daylight() {
 	// TODO
