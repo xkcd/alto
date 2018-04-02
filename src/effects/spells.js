@@ -105,12 +105,11 @@ export function animateObjects() {
   var elements = document.getElementsByTagName('img');
   var extraIDs = ['news', 'topLeft', 'ctitle'];
   var elements2 = [];
-  var i=0;
-  for(i=0; i<extraIDs.length; i++) {
+  for(var i=0; i<extraIDs.length; i++) {
     elements2.push( document.getElementById( extraIDs[i] ) );
   }
   setInterval(function() {
-    for(i=0; i<elements.length; i++) {
+    for(var i=0; i<elements.length; i++) {
       elem = elements[i];
       if (Math.floor(Math.random() * 2) == 0) {
         elem.style.marginLeft = "3px";
@@ -127,7 +126,7 @@ export function animateObjects() {
       }
     }
 
-    for(i=0; i<elements2.length; i++) {
+    for(var i=0; i<elements2.length; i++) {
       elem = elements2[i];
       if (Math.floor(Math.random() * 2) == 0) {
         elem.style.marginLeft = "3px";
