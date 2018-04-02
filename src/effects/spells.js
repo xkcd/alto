@@ -33,7 +33,7 @@ export function darkVision() {
 }
 
 /* explosion */
-function fireball() {
+export function fireball() {
   var reds = ["#ff0000", "#ff0000", "#ff0000", "#ff0000", "#ee0000", "#ee0000", "#dd0000", "#cc0000", "#bb0000", "#aa0000", "#990000", "#880000", "#770000", "#660000", "#550000", "#440000", "#330000", "#220000", "#110000", "#000", "#000" ];
   var timesRun = 0;
   var s= document.getElementById("comic").childNodes[0].style;
