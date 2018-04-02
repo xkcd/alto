@@ -6,7 +6,6 @@ export function viewMinimize() {
 
 /* full screen it is! */
 export function fullScreen() {
-  const comic  = document.getElementById('comic');
   const methodName = [
     "requestFullscreen",
     "webkitRequestFullscreen",
@@ -14,6 +13,6 @@ export function fullScreen() {
     "msRequestFullscreen"
   ].find(fname => typeof comic[fname] === "function");
   if (methodName) {
-    comic[methodName]();
+    document.body[methodName]();
   }
 }
