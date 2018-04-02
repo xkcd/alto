@@ -332,6 +332,7 @@ export function attachMenuTo(props) {
   const {triggerEl, menuProps, id, itemGen, onMenuSelect, onMenuEnter, onMenuLeave} = props
   let menuObj
   let isTouching = false
+  let openedMenu = false
   let longPressTimeout
 
   function closeMenu() {
@@ -379,14 +380,13 @@ export function attachMenuTo(props) {
   // we have to implement our own long press detection because iOS Safari
   // doesn't trigger contextmenu on touch.
   triggerEl.addEventListener('touchstart', ev => {
-    closeMenuIfOutside(ev)
-
     isTouching = true
     longPressTimeout = setTimeout(() => {
       openMenu({
         x: Math.floor(ev.touches[0].clientX),
         y: Math.floor(ev.touches[0].clientY),
       })
+      openedMenu = true
     }, 250)
   })
 
@@ -399,8 +399,9 @@ export function attachMenuTo(props) {
     clearTimeout(longPressTimeout)
 
     // prevent mousedown event
-    if (ev.cancelable) {
+    if (openedMenu && ev.cancelable) {
       ev.preventDefault()
     }
+    openedMenu = false
   })
 }
