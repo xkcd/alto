@@ -2,7 +2,7 @@
 export function darkTheme () {
   document.body.style.background = "#000";
   document.body.style.color = "darkred";
-  var s= document.getElementById("comic").childNodes[0].style;
+  var s= document.getElementById("comic").childNodes[1].style;
   s.webkitFilter = "invert(1)";
   s.filter = "invert(1)";
   // TODO menu colors
@@ -12,7 +12,7 @@ export function darkTheme () {
 export function darkness() {
   document.body.style.background = "#000";
   document.body.style.color = "#000";
-  var s= document.getElementById("comic").childNodes[0].style;
+  var s= document.getElementById("comic").childNodes[1].style;
   s.opacity = 0;
   s.MozOpacity = 0;
   s.KhtmlOpacity = 0;
@@ -24,7 +24,7 @@ export function darkness() {
 export function darkVision() {
   document.body.style.background = "darkgray";
   document.body.style.color = "lightgray";
-  var s= document.getElementById("comic").childNodes[0].style;
+  var s= document.getElementById("comic").childNodes[1].style;
   s.opacity = .25;
   s.MozOpacity = .25;
   s.KhtmlOpacity = .25;
@@ -36,7 +36,7 @@ export function darkVision() {
 function fireball() {
   var reds = ["#ff0000", "#ff0000", "#ff0000", "#ff0000", "#ee0000", "#ee0000", "#dd0000", "#cc0000", "#bb0000", "#aa0000", "#990000", "#880000", "#770000", "#660000", "#550000", "#440000", "#330000", "#220000", "#110000", "#000", "#000" ];
   var timesRun = 0;
-  var s= document.getElementById("comic").childNodes[0].style;
+  var s= document.getElementById("comic").childNodes[1].style;
   s.opacity = 0.25;
   s.MozOpacity = 0.25;
   s.KhtmlOpacity = 0.25;
@@ -86,7 +86,7 @@ export function symbol() {
 
 /* fill the screen with an acid pattern */
 export function acidSplash() {
-  var s= document.getElementById("comic").childNodes[0].style;
+  var s= document.getElementById("comic").childNodes[1].style;
   s.opacity = 0.5;
   s.MozOpacity = 0.5;
   s.KhtmlOpacity = 0.5;
@@ -126,7 +126,7 @@ export function animateObjects() {
 
 /* make the screen fuzzy and hard to read */
 export function blur() {
-  var s= document.getElementById("comic").childNodes[0].style;
+  var s= document.getElementById("comic").childNodes[1].style;
   s.webkitFilter = "blur(5px)";
   document.body.style.textShadow = "0 0 3px #000, 3px 0 3px #000, 0 3px 3px #000, -3px 0 3px #000, 0 -3px 3px #000";
   var menus = document.getElementsByTagName("li");
