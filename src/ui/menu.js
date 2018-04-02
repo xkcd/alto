@@ -15,6 +15,10 @@ export const styles = css`
     position: fixed;
     display: flex;
     max-width: 250px;
+    font-family: sans-serif;
+    font-size: 11.5pt;
+    font-variant: none;
+    text-align: left;
     background-color: @itemBackgroundColor;
     border-radius: 3px;
     box-shadow: 0 0 10px rgba(0, 0, 0, .45);
