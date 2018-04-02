@@ -8,8 +8,6 @@ export const styles = css`
 
   .item {
     display: flex;
-    font-family: sans-serif;
-    font-size: 11.5pt;
     color: black;
     border-radius: 2px;
     align-items: center;

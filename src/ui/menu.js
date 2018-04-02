@@ -15,12 +15,14 @@ export const styles = css`
     position: fixed;
     display: flex;
     max-width: 250px;
+    font-family: sans-serif;
+    font-size: 11.5pt;
+    font-variant: none;
+    text-align: left;
     background-color: @itemBackgroundColor;
     border-radius: 3px;
     box-shadow: 0 0 10px rgba(0, 0, 0, .45);
     transition: opacity .15s ease-out;
-    text-align: left;
-    font-variant: none;
 
     & > ul {
       margin: 0;
@@ -366,8 +368,6 @@ export function attachMenuTo(props) {
 
   window.addEventListener('mousedown', closeMenuIfOutside)
 
-  window.addEventListener('touchstart', closeMenuIfOutside)
-
   triggerEl.addEventListener('contextmenu', ev => {
     ev.preventDefault()
     if (!isTouching) {
@@ -379,6 +379,8 @@ export function attachMenuTo(props) {
   // we have to implement our own long press detection because iOS Safari
   // doesn't trigger contextmenu on touch.
   triggerEl.addEventListener('touchstart', ev => {
+    closeMenuIfOutside(ev)
+
     isTouching = true
     longPressTimeout = setTimeout(() => {
       openMenu({
@@ -392,8 +394,13 @@ export function attachMenuTo(props) {
     clearTimeout(longPressTimeout)
   })
 
-  triggerEl.addEventListener('touchend', () => {
+  triggerEl.addEventListener('touchend', ev => {
     isTouching = false
     clearTimeout(longPressTimeout)
+
+    // prevent mousedown event
+    if (ev.cancelable) {
+      ev.preventDefault()
+    }
   })
 }
