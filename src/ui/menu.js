@@ -377,6 +377,8 @@ export function attachMenuTo(props) {
   // we have to implement our own long press detection because iOS Safari
   // doesn't trigger contextmenu on touch.
   triggerEl.addEventListener('touchstart', ev => {
+    closeMenuIfOutside(ev)
+
     isTouching = true
     longPressTimeout = setTimeout(() => {
       openMenu({
@@ -390,8 +392,13 @@ export function attachMenuTo(props) {
     clearTimeout(longPressTimeout)
   })
 
-  triggerEl.addEventListener('touchend', () => {
+  triggerEl.addEventListener('touchend', ev => {
     isTouching = false
     clearTimeout(longPressTimeout)
+
+    // prevent mousedown event
+    if (ev.cancelable) {
+      ev.preventDefault()
+    }
   })
 }
