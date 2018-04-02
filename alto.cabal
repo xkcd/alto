@@ -4,17 +4,21 @@
 name:                alto
 version:             0
 synopsis:            Impliment a menu experience for web users.
--- description:
+description:         A system for building "powerful" menu systems. Used for the xkcd 2018 April 1st comic.
 homepage:            https://oss.xkcd.com/
 license:             BSD3
 license-file:        LICENSE
 author:              davean
 maintainer:          davean@xkcd.com
--- copyright:
+copyright:           davean 2018
 category:            Web
 build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
+
+source-repository head
+  type: git
+  location: https://code.xkrd.net/xkcd/alto.git
 
 library
   -- other-modules:
