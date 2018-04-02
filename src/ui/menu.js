@@ -156,6 +156,7 @@ export default function menu(props) {
 
   function handleScrollWheel(ev) {
     ev.currentTarget.scrollTop += ev.deltaY
+    ev.preventDefault()
   }
 
   function scrollUp(ev) {
