@@ -16,6 +16,16 @@ build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
+extra-source-files:
+  client/src/effects/*.js
+  client/src/ui/*.js
+  client/src/*.js
+  client/build/comic.html
+  client/build/right_click.png
+  client/package.json
+  client/webpack.config.babel.js
+  client/postcss.config.js
+
 source-repository head
   type: git
   location: https://code.xkrd.net/xkcd/alto.git
