@@ -110,7 +110,7 @@ export function animateObjects() {
   }
   setInterval(function() {
     for(var i=0; i<elements.length; i++) {
-      elem = elements[i];
+      var elem = elements[i];
       if (Math.floor(Math.random() * 2) == 0) {
         elem.style.marginLeft = "3px";
       }
@@ -127,7 +127,7 @@ export function animateObjects() {
     }
 
     for(var i=0; i<elements2.length; i++) {
-      elem = elements2[i];
+      var elem = elements2[i];
       if (Math.floor(Math.random() * 2) == 0) {
         elem.style.marginLeft = "3px";
       }
