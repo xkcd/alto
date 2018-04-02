@@ -155,15 +155,21 @@ export default function menu(props) {
   }
 
   function handleScrollWheel(ev) {
+    closeSubMenu()
+    handleItemLeave()
     ev.currentTarget.scrollTop += ev.deltaY
     ev.preventDefault()
   }
 
   function scrollUp(ev) {
+    closeSubMenu()
+    handleItemLeave()
     getParentEl(ev.target).querySelector('ul').scrollTop -= 6
   }
 
   function scrollDown(ev) {
+    closeSubMenu()
+    handleItemLeave()
     getParentEl(ev.target).querySelector('ul').scrollTop += 6
   }
 
