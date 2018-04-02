@@ -364,8 +364,6 @@ export function attachMenuTo(props) {
 
   window.addEventListener('mousedown', closeMenuIfOutside)
 
-  window.addEventListener('touchstart', closeMenuIfOutside)
-
   triggerEl.addEventListener('contextmenu', ev => {
     ev.preventDefault()
     if (!isTouching) {
