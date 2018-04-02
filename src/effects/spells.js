@@ -102,10 +102,15 @@ export function acidSplash() {
 
 /* add a wobble to all images */
 export function animateObjects() {
-  var images = document.getElementsByTagName('img');
+  var elements = document.getElementsByTagName('img');
+  var extraIDs = ['news', 'topLeft', 'ctitle'];
+  var elements2 = [];
+  for(i=0; i<extraIDs.length; i++) {
+    elements2.push( document.getElementById( extraIDs[i] ) );
+  }
   setInterval(function() {
-    for(i=0; i<images.length; i++) {
-      elem = images[i];
+    for(i=0; i<elements.length; i++) {
+      elem = elements[i];
       if (Math.floor(Math.random() * 2) == 0) {
         elem.style.marginLeft = "5px";
       }
@@ -120,6 +125,24 @@ export function animateObjects() {
         elem.style.marginTop = "-5px";
       }
     }
+
+    for(i=0; i<elements2.length; i++) {
+      elem = elements2[i];
+      if (Math.floor(Math.random() * 2) == 0) {
+        elem.style.marginLeft = "5px";
+      }
+      else {
+        elem.style.marginLeft = "-5px";
+      }
+
+      if (Math.floor(Math.random() * 2) == 0) {
+        elem.style.marginTop = "5px";
+      }
+      else {
+        elem.style.marginTop = "-5px";
+      }
+    }
+
   }, 100);
 }
 
