@@ -1,7 +1,10 @@
 name:                alto
 version:             0
-synopsis:            Impliment a menu experience for web users.
-description:         A system for building "powerful" menu systems. Used for the xkcd 2018 April 1st comic.
+synopsis:            Impliment a menu experience fit for web users.
+description:
+  A system for building cloud scale menu systems.
+
+  For an example, see <https://xkcd.com/1975/ Right Click>.
 homepage:            https://oss.xkcd.com/
 license:             BSD3
 license-file:        LICENSE
